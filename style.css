@@ -9,14 +9,36 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 
 /* 头像+胶囊 */
 .profile-section { display:flex; align-items:center; justify-content:center; gap:16px; padding:24px 8px; }
-.profile-col { display:flex; flex-direction:column; align-items:center; gap:10px; }
+
+/* 这里的 gap:28px 就是上下胶囊的间距，拉大后更有呼吸感 */
+.profile-col { display:flex; flex-direction:column; align-items:center; gap:28px; }
+
 .profile-avatar { width:72px; height:72px; border-radius:50%; background:#f2f2f7; border:2px solid #e5e5ea; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
 .profile-avatar img { width:100%; height:100%; object-fit:cover; display:none; }
 .profile-avatar svg { width:32px; height:32px; stroke:#8e8e93; stroke-width:1.5; fill:none; }
 .profile-avatar.has-img svg { display:none; }
 .profile-avatar.has-img img { display:block; }
 
-.capsule { padding:6px 14px; border-radius:999px; background:#f2f2f7; border:1px solid #e5e5ea; font-size:12px; color:#3c3c43; text-align:center; min-width:72px; max-width:120px; cursor:pointer; outline:none; font-weight:500; transition:border-color .15s ease; }
+.capsule { 
+  width: 76px;         /* 固定宽度 */
+  height: 30px;        /* 固定高度 */
+  line-height: 28px;   /* 让文字完美垂直居中 */
+  padding: 0 8px; 
+  border-radius: 999px; 
+  background: #f2f2f7; 
+  border: 1px solid #e5e5ea; 
+  font-size: 12px; 
+  color: #3c3c43; 
+  text-align: center; 
+  cursor: pointer; 
+  outline: none; 
+  font-weight: 500; 
+  transition: border-color .15s ease;
+  /* 下面三行保证文字再多也不会撑拉伸胶囊，而是优雅地显示省略号 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .capsule:focus { border-color:#1c1c1e; }
 .capsule[contenteditable]:empty::before { content:attr(data-placeholder); color:#c7c7cc; }
 
