@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -94,65 +95,87 @@
     infoTexts.forEach(function(el) { el.addEventListener('blur', saveCardState); });
     if (locationText) locationText.addEventListener('blur', saveCardState);
 
-    // --- 编辑面板（仅毛玻璃、颜色、透明度） ---
+    // --- 编辑气泡卡片（弹出在个人卡片正下方） ---
     var cardEditBtn = document.querySelector('[data-edit-target="card"]');
+    var cardPopup = null;
+    var cardPopupMask = null;
+
     if (cardEditBtn) {
       cardEditBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        openCardEditPanel();
+        showCardPopup();
       });
     }
 
-    function openCardEditPanel() {
-      var panel = document.getElementById('cardEditPanel');
-      if (!panel) {
-        panel = createCardEditPanel();
-        document.body.appendChild(panel);
-      }
-      panel.classList.add('show');
-      var mask = document.getElementById('cardEditMask');
-      if (!mask) {
-        mask = document.createElement('div');
-        mask.id = 'cardEditMask';
-        mask.className = 'edit-panel-mask';
-        document.body.appendChild(mask);
-        mask.addEventListener('click', closeCardEditPanel);
-      }
-      mask.classList.add('show');
-    }
+    function showCardPopup() {
+      if (!cardPopup) {
+        cardPopupMask = document.createElement('div');
+        cardPopupMask.className = 'popup-mask';
+        document.body.appendChild(cardPopupMask);
+        cardPopupMask.addEventListener('click', hideCardPopup);
 
-    function closeCardEditPanel() {
-      var panel = document.getElementById('cardEditPanel');
-      if (panel) panel.classList.remove('show');
-      var mask = document.getElementById('cardEditMask');
-      if (mask) mask.classList.remove('show');
-      saveCardState();
-    }
+        cardPopup = document.createElement('div');
+        cardPopup.className = 'popup-card';
+        cardPopup.innerHTML = '<div class="popup-card-title">卡片设置</div>'
+          + '<div class="popup-card-row"><span>毛玻璃</span>'
+          + '<div class="toggle-switch"><input type="checkbox" id="cardGlassToggle"><label for="cardGlassToggle"></label></div></div>'
+          + '<div class="popup-card-row"><span>背景颜色</span>'
+          + '<input type="color" id="cardColorPicker" value="#ffffff"></div>'
+          + '<div class="popup-card-row"><span>透明度</span>'
+          + '<input type="range" id="cardOpacitySlider" min="0" max="100" value="80">'
+          + '<span class="popup-card-value" id="cardOpacityValue">80%</span></div>';
+        document.body.appendChild(cardPopup);
 
-    function createCardEditPanel() {
-      var panel = document.createElement('div');
-      panel.id = 'cardEditPanel';
-      panel.className = 'edit-panel';
-      panel.innerHTML = '<div class="edit-panel-handle"></div>'
-        + '<div class="edit-panel-content">'
-        + '<div class="panel-title">卡片设置</div>'
-        + '<div class="control-row"><span class="control-label">毛玻璃</span>'
-        + '<div class="toggle-switch"><input type="checkbox" id="cardGlassToggle"><label for="cardGlassToggle"></label></div></div>'
-        + '<div class="control-row"><span class="control-label">背景颜色</span>'
-        + '<input type="color" id="cardColorPicker" value="#ffffff"></div>'
-        + '<div class="control-row"><span class="control-label">透明度</span>'
-        + '<input type="range" id="cardOpacitySlider" min="0" max="100" value="80">'
-        + '<span class="opacity-value" id="cardOpacityValue">80%</span></div>'
-        + '<button class="done-btn" id="cardDoneBtn">完成</button>'
-        + '</div>';
-
-      setTimeout(function() {
         document.getElementById('cardGlassToggle').addEventListener('change', applyCardOverlay);
         document.getElementById('cardColorPicker').addEventListener('input', applyCardOverlay);
         document.getElementById('cardOpacitySlider').addEventListener('input', applyCardOverlay);
-        document.getElementById('cardDoneBtn').addEventListener('click', closeCardEditPanel);
-      }, 0);
-      return panel;
+      }
+
+      loadStyleToControls();
+      positionCardPopup();
+      cardPopupMask.classList.add('show');
+      cardPopup.classList.add('show');
+    }
+
+    function hideCardPopup() {
+      if (cardPopup) cardPopup.classList.remove('show');
+      if (cardPopupMask) cardPopupMask.classList.remove('show');
+      saveCardState();
+    }
+
+    function positionCardPopup() {
+      var cardRect = document.getElementById('profileCard').getBoundingClientRect();
+      var windowW = window.innerWidth;
+
+      cardPopup.style.visibility = 'hidden';
+      cardPopup.style.display = 'block';
+      var popupW = cardPopup.offsetWidth;
+      cardPopup.style.visibility = '';
+      cardPopup.style.display = '';
+
+      var left = cardRect.left + cardRect.width / 2 - popupW / 2;
+      var top = cardRect.bottom + 10;
+
+      if (left < 12) left = 12;
+      if (left + popupW > windowW - 12) left = windowW - popupW - 12;
+
+      cardPopup.style.left = left + 'px';
+      cardPopup.style.top = top + 'px';
+    }
+
+    function loadStyleToControls() {
+      if (!window.AppDB) return;
+      AppDB.get('card_state', function(state) {
+        if (!state || !state.style) return;
+        var glassToggle = document.getElementById('cardGlassToggle');
+        var colorPicker = document.getElementById('cardColorPicker');
+        var opacitySlider = document.getElementById('cardOpacitySlider');
+        var opacityValue = document.getElementById('cardOpacityValue');
+        if (glassToggle) glassToggle.checked = state.style.glass;
+        if (colorPicker) colorPicker.value = state.style.color;
+        if (opacitySlider) opacitySlider.value = state.style.opacity;
+        if (opacityValue) opacityValue.textContent = state.style.opacity + '%';
+      });
     }
 
     function applyCardOverlay() {
@@ -170,6 +193,7 @@
       lowerOverlay.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
       if (glassToggle.checked) lowerOverlay.classList.add('glass-effect');
       else lowerOverlay.classList.remove('glass-effect');
+      saveCardState();
     }
 
     function saveCardState() {
@@ -221,15 +245,7 @@
           });
         }
         if (state.style) {
-          setTimeout(function() {
-            var glassToggle = document.getElementById('cardGlassToggle');
-            var colorPicker = document.getElementById('cardColorPicker');
-            var opacitySlider = document.getElementById('cardOpacitySlider');
-            if (glassToggle) glassToggle.checked = state.style.glass;
-            if (colorPicker) colorPicker.value = state.style.color;
-            if (opacitySlider) opacitySlider.value = state.style.opacity;
-            applyCardOverlay();
-          }, 100);
+          setTimeout(function() { applyCardOverlay(); }, 100);
         }
       });
     }
@@ -244,7 +260,6 @@
     var avatarFileInput = document.createElement('input');
     avatarFileInput.type = 'file'; avatarFileInput.accept = 'image/*';
 
-    // 点击消息头像 → 弹出照片操作卡片
     if (messageAvatar) {
       messageAvatar.addEventListener('click', function(e) {
         e.stopPropagation();
