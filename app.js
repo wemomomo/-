@@ -134,16 +134,29 @@
       + '<button id="paDeleteBtn">删除照片</button>';
     document.body.appendChild(photoActionCard);
 
-    photoActionMask.addEventListener('click', hidePhotoAction);
+    photoActionMask.addEventListener('click', function() {
+      photoActionMask.classList.remove('show');
+      photoActionCard.classList.remove('show');
+      photoActionOnSelect = null;
+      photoActionOnDelete = null;
+    });
 
     document.getElementById('paSelectBtn').addEventListener('click', function() {
-      hidePhotoAction();
-      if (photoActionOnSelect) photoActionOnSelect();
+      var callback = photoActionOnSelect;
+      photoActionMask.classList.remove('show');
+      photoActionCard.classList.remove('show');
+      photoActionOnSelect = null;
+      photoActionOnDelete = null;
+      if (callback) callback();
     });
 
     document.getElementById('paDeleteBtn').addEventListener('click', function() {
-      hidePhotoAction();
-      if (photoActionOnDelete) photoActionOnDelete();
+      var callback = photoActionOnDelete;
+      photoActionMask.classList.remove('show');
+      photoActionCard.classList.remove('show');
+      photoActionOnSelect = null;
+      photoActionOnDelete = null;
+      if (callback) callback();
     });
   }
 
@@ -154,16 +167,8 @@
     photoActionCard.classList.add('show');
   }
 
-  function hidePhotoAction() {
-    photoActionMask.classList.remove('show');
-    photoActionCard.classList.remove('show');
-    photoActionOnSelect = null;
-    photoActionOnDelete = null;
-  }
-
   window.PhotoAction = {
-    show: showPhotoAction,
-    hide: hidePhotoAction
+    show: showPhotoAction
   };
 
   // ============ Toast 提示 ============
