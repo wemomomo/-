@@ -1,4 +1,3 @@
-
 (function(){
   'use strict';
 
@@ -24,7 +23,7 @@
     var avatarFileInput = document.createElement('input');
     avatarFileInput.type = 'file'; avatarFileInput.accept = 'image/*';
 
-    // --- 点击背景 → 弹出照片操作卡片 ---
+    // --- 点击背景 ---
     cardUpper.addEventListener('click', function() {
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
       PhotoAction.show(
@@ -38,7 +37,7 @@
       );
     });
 
-    // --- 点击头像 → 弹出照片操作卡片 ---
+    // --- 点击头像 ---
     avatarBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
@@ -59,12 +58,15 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        AppCropper.open(e.target.result, { aspectRatio: 16/11 }, function(croppedData) {
-          cardBg.style.backgroundImage = 'url(' + croppedData + ')';
-          cardBg.classList.add('has-bg');
-          AppDB.save('card_bg', croppedData);
-          saveCardState();
-        });
+        var result = e.target.result;
+        setTimeout(function() {
+          AppCropper.open(result, { aspectRatio: 16/11 }, function(croppedData) {
+            cardBg.style.backgroundImage = 'url(' + croppedData + ')';
+            cardBg.classList.add('has-bg');
+            AppDB.save('card_bg', croppedData);
+            saveCardState();
+          });
+        }, 300);
       };
       reader.readAsDataURL(file);
       this.value = '';
@@ -76,12 +78,15 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
-          avatarImg.src = croppedData;
-          avatarBtn.classList.add('has-img');
-          AppDB.save('card_avatar', croppedData);
-          saveCardState();
-        });
+        var result = e.target.result;
+        setTimeout(function() {
+          AppCropper.open(result, { aspectRatio: 1 }, function(croppedData) {
+            avatarImg.src = croppedData;
+            avatarBtn.classList.add('has-img');
+            AppDB.save('card_avatar', croppedData);
+            saveCardState();
+          });
+        }, 300);
       };
       reader.readAsDataURL(file);
       this.value = '';
@@ -91,7 +96,7 @@
     infoTexts.forEach(function(el) { el.addEventListener('blur', saveCardState); });
     if (locationText) locationText.addEventListener('blur', saveCardState);
 
-    // --- 编辑气泡卡片（弹出在个人卡片正下方） ---
+    // --- 编辑气泡卡片 ---
     var cardEditBtn = document.querySelector('[data-edit-target="card"]');
     var cardPopup = null;
     var cardPopupMask = null;
@@ -273,11 +278,14 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
-          messageAvatarImg.src = croppedData;
-          messageAvatar.classList.add('has-img');
-          AppDB.save('message_avatar', croppedData);
-        });
+        var result = e.target.result;
+        setTimeout(function() {
+          AppCropper.open(result, { aspectRatio: 1 }, function(croppedData) {
+            messageAvatarImg.src = croppedData;
+            messageAvatar.classList.add('has-img');
+            AppDB.save('message_avatar', croppedData);
+          });
+        }, 300);
       };
       reader.readAsDataURL(file);
       this.value = '';
