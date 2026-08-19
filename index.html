@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<!-- ▼▼▼ 新增：控制iOS状态栏样式 ▼▼▼ -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="light-content">
 <meta name="theme-color" content="#ffffff">
-<!-- ▲▲▲ ▲▲▲ -->
 <title>App</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -25,9 +23,6 @@
 
         <!-- 卡片上半部分 -->
         <div class="card-upper" id="cardUpper"></div>
-
-        <!-- 分割线 -->
-        <div class="card-divider"></div>
 
         <!-- 卡片下半部分（带可调透明度的遮罩） -->
         <div class="card-lower" id="cardLower">
@@ -53,18 +48,24 @@
 
       </div>
 
-      <div class="photo-row">
-        <div class="photo-frame" data-photo="0">
-          <img alt="照片1">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+      <!-- 消息卡片 -->
+      <div class="message-card">
+        <div class="message-avatar">
+          <img alt="角色头像">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
         </div>
-        <div class="photo-frame" data-photo="1">
-          <img alt="照片2">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        <div class="message-content">
+          <div class="message-preview">暂无消息</div>
         </div>
-        <div class="photo-frame" data-photo="2">
-          <img alt="照片3">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        <div class="message-badge">
+          <svg class="badge-icon" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <circle cx="8" cy="8" r="1" fill="currentColor"/>
+            <circle cx="12" cy="8" r="1" fill="currentColor"/>
+            <circle cx="16" cy="8" r="1" fill="currentColor"/>
+            <path d="M12 13 L9 16 L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>最新讯息</span>
         </div>
       </div>
 
