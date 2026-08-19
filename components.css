@@ -266,9 +266,9 @@
 
 .action-btn {
   flex: 1;
-  border: 1px solid #007aff;
+  border: 1px solid #1c1c1e;
   background: white;
-  color: #007aff;
+  color: #1c1c1e;
   font-size: 14px;
   font-weight: 500;
   padding: 10px;
@@ -278,11 +278,12 @@
   transition: all 0.15s;
 }
 .action-btn:active {
-  opacity: 0.7;
+  background: #f5f5f5;
 }
 .action-btn.danger {
-  border-color: #ff3b30;
-  color: #ff3b30;
+  border-color: #1c1c1e;
+  color: #1c1c1e;
+  background: #f5f5f5;
 }
 
 .control-row {
@@ -375,17 +376,17 @@
 }
 
 input:checked + label { 
-  background-color: #34c759; 
+  background-color: #1c1c1e;
 }
 
 input:checked + label:before { 
-  transform: translateX(20px); 
+  transform: translateX(20px);
 }
 
 .done-btn {
   width: 100%;
   border: none;
-  background: #007aff;
+  background: #1c1c1e;
   color: white;
   font-size: 15px;
   font-weight: 600;
@@ -448,7 +449,7 @@ input:checked + label:before {
 .crop-cancel, .crop-confirm {
   background: none;
   border: none;
-  color: #007aff;
+  color: #ffffff;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
