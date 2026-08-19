@@ -67,7 +67,11 @@
           '<div class="crop-workspace"><canvas id="cropCanvas"></canvas></div>' +
         '</div>';
 
-      document.body.appendChild(overlay);
+document.body.appendChild(overlay);
+
+      setTimeout(function() {
+        img.src = src;
+      }, 50);
 
       var canvas = overlay.querySelector('#cropCanvas');
       var ctx = canvas.getContext('2d');
@@ -103,7 +107,6 @@
         crop.y = (displayH - crop.h) / 2;
         draw();
       };
-      img.src = src;
 
       function clampCrop() {
         crop.w = Math.max(MIN_SIZE, Math.min(displayW, crop.w));
