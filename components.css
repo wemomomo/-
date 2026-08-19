@@ -17,7 +17,7 @@
   z-index: 0;
 }
 .card-bg:not(.has-bg)::after {
-  content: "轻点上传背景";
+  content: "点击加载背景";
   position: absolute;
   top: 25%;
   left: 50%;
@@ -141,7 +141,7 @@
   width: 100%;
   background: #ffffff;
   border-radius: 16px;
-  padding: 12px 14px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -156,7 +156,7 @@
   width: 48px;
   height: 48px;
   border-radius: 20%;
-  background: #f2f2f7;
+  background: #fff;
   border: 1px solid #e5e5ea;
   overflow: hidden;
   display: flex;
@@ -198,7 +198,7 @@
   right: 20px;
   background: #f2f2f7;
   border-radius: 12px;
-  padding: 4px 8px;
+  padding: 2px 8px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -211,7 +211,7 @@
 }
 
 .message-badge span {
-  font-size: 12px;
+  font-size: 10px;
   color: #8e8e93;
-  font-weight: 500;
+  font-weight: 600;
 }
