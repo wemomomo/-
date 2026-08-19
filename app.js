@@ -1,8 +1,9 @@
+
 (function(){
   'use strict';
 
   // ============ IndexedDB 存储模块 ============
-  var DB_NAME = 'AppDB';
+  var DB_NAME = 'MoMoAppDB';
   var DB_VERSION = 1;
   var STORE_NAME = 'appData';
   var db = null;
@@ -20,7 +21,6 @@
       if (callback) callback();
     };
     request.onerror = function() {
-      console.error('IndexedDB 打开失败');
       if (callback) callback();
     };
   }
@@ -67,7 +67,7 @@
   var cropper = null;
   var cropCallback = null;
 
-    function openCropper(imageDataUrl, options, callback) {
+  function openCropper(imageDataUrl, options, callback) {
     cropCallback = callback;
     var cropAspect = (options && options.aspectRatio) || NaN;
     cropImage.src = imageDataUrl;
@@ -77,11 +77,11 @@
       if (cropper) cropper.destroy();
       cropper = new Cropper(cropImage, {
         aspectRatio: cropAspect,
-        viewMode: 1,           // 限制裁剪框不能跑出图片外面
-        autoCropArea: 1,       // 初始直接把裁剪框拉到最大（按比例最大化）
-        movable: false,        // 【关键】禁止图片乱动，图片死死锁住
-        zoomable: false,       // 【关键】禁止图片缩放
-        scalable: false,       // 禁止乱翻转
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: false,
+        zoomable: false,
+        scalable: false,
         background: true
       });
     }, 100);
@@ -115,6 +115,56 @@
     close: closeCropper
   };
 
+  // ============ 照片操作卡片（全局） ============
+  var photoActionCard = null;
+  var photoActionMask = null;
+  var photoActionOnSelect = null;
+  var photoActionOnDelete = null;
+
+  function setupPhotoAction() {
+    photoActionMask = document.createElement('div');
+    photoActionMask.className = 'photo-action-mask';
+    document.body.appendChild(photoActionMask);
+
+    photoActionCard = document.createElement('div');
+    photoActionCard.className = 'photo-action-card';
+    photoActionCard.innerHTML = '<button id="paSelectBtn">选择照片</button>'
+      + '<button id="paDeleteBtn">删除照片</button>';
+    document.body.appendChild(photoActionCard);
+
+    photoActionMask.addEventListener('click', hidePhotoAction);
+
+    document.getElementById('paSelectBtn').addEventListener('click', function() {
+      hidePhotoAction();
+      if (photoActionOnSelect) photoActionOnSelect();
+    });
+
+    document.getElementById('paDeleteBtn').addEventListener('click', function() {
+      hidePhotoAction();
+      if (photoActionOnDelete) photoActionOnDelete();
+    });
+  }
+
+  function showPhotoAction(onSelect, onDelete) {
+    photoActionOnSelect = onSelect;
+    photoActionOnDelete = onDelete;
+    photoActionMask.classList.add('show');
+    photoActionCard.classList.add('show');
+  }
+
+  function hidePhotoAction() {
+    photoActionMask.classList.remove('show');
+    photoActionCard.classList.remove('show');
+    photoActionOnSelect = null;
+    photoActionOnDelete = null;
+  }
+
+  // 暴露到全局
+  window.PhotoAction = {
+    show: showPhotoAction,
+    hide: hidePhotoAction
+  };
+
   // ============ 页面导航 ============
   var pages = document.querySelectorAll('.page');
   var tabs = document.querySelectorAll('.tab-item');
@@ -126,165 +176,85 @@
     tabs.forEach(function(t) { t.classList.toggle('active', t === tab); });
   }
 
-tabs.forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    // 弹出开发中提示
-    showToast('开发中');
-  });
-});
-
-// Toast 提示函数
-function showToast(message) {
-  var toast = document.createElement('div');
-  toast.className = 'toast-message';
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  
-  setTimeout(function() {
-    toast.classList.add('show');
-  }, 10);
-  
-  setTimeout(function() {
-    toast.classList.remove('show');
+  // Toast 提示
+  function showToast(message) {
+    var toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.classList.add('show'); }, 10);
     setTimeout(function() {
-      document.body.removeChild(toast);
-    }, 300);
-  }, 1500);
-}
-
-  // ============ 图标拖拽功能 ============
-  function initIconDrag() {
-    var DELAY = 250;
-    var SNAP = 12;
-    var ALL_ICONS = ['iconPlot', 'iconMessage', 'iconExplore', 'iconVault'];
-
-    dbGet('appIconOffsets', function(offsets) {
-      if (!offsets) offsets = {};
-      ALL_ICONS.forEach(function(id) {
-        var el = document.getElementById(id); 
-        if(!el) return;
-        var off = offsets[id]; 
-        if(off) {
-          var tf = 'translate('+off.x+'px,'+off.y+'px)';
-          el.style.setProperty('--t', tf);
-          el.style.transform = tf;
-        }
-      });
-    });
-
-    ALL_ICONS.forEach(function(id) {
-      var el = document.getElementById(id); 
-      if(!el || el._iconDragBound) return;
-      el._iconDragBound = true;
-      
-      var startX, startY, origX, origY, longPressed = false, timer, moved = false;
-
-      el.addEventListener('touchstart', function(e) {
-        var t = e.touches[0]; 
-        startX = t.clientX; 
-        startY = t.clientY; 
-        longPressed = false; 
-        moved = false;
-        
-        timer = setTimeout(function() {
-          longPressed = true;
-          dbGet('appIconOffsets', function(savedOffsets) {
-            if (!savedOffsets) savedOffsets = {};
-            var off = savedOffsets[id] || {x:0, y:0};
-            origX = off.x; 
-            origY = off.y;
-            el.classList.add('is-grabbed');
-            el.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            var tf = 'translate('+origX+'px,'+origY+'px) scale(1.1)';
-            el.style.setProperty('--t', tf);
-            el.style.transform = tf;
-            el.style.zIndex = '999';
-            if(navigator.vibrate) navigator.vibrate(15);
-          });
-        }, DELAY);
-      }, {passive:true});
-
-      el.addEventListener('touchmove', function(e) {
-        var t = e.touches[0];
-        if(timer && !longPressed) {
-          if(Math.abs(t.clientX-startX)>8 || Math.abs(t.clientY-startY)>8){
-            clearTimeout(timer);
-            timer=null;
-          }
-          return;
-        }
-        if(!longPressed) return;
-        moved = true; 
-        e.preventDefault(); 
-        e.stopPropagation();
-        
-        var nx = origX + (t.clientX - startX);
-        var ny = origY + (t.clientY - startY);
-        
-        dbGet('appIconOffsets', function(savedOffsets) {
-          if (!savedOffsets) savedOffsets = {};
-          ALL_ICONS.forEach(function(otherId) {
-            if(otherId === id) return;
-            var otherOff = savedOffsets[otherId] || {x:0, y:0};
-            if(Math.abs(ny - otherOff.y) < SNAP) ny = otherOff.y;
-            if(Math.abs(nx - otherOff.x) < SNAP) nx = otherOff.x;
-          });
-          
-          el.style.transition = 'none';
-          var tf = 'translate('+nx+'px,'+ny+'px) scale(1.1)';
-          el.style.setProperty('--t', tf);
-          el.style.transform = tf;
-        });
-      }, {passive:false});
-
-      el.addEventListener('touchend', function(e) {
-        clearTimeout(timer); 
-        timer=null;
-        el.classList.remove('is-grabbed'); 
-        
-        if(longPressed) {
-          if(moved) { 
-            dbGet('appIconOffsets', function(savedOffsets) {
-              if (!savedOffsets) savedOffsets = {};
-              var match = el.style.transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
-              if(match) { 
-                savedOffsets[id] = {x:parseFloat(match[1]), y:parseFloat(match[2])}; 
-                dbSave('appIconOffsets', savedOffsets);
-              }
-            });
-            e.stopPropagation(); 
-          }
-          el.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
-          dbGet('appIconOffsets', function(savedOffsets) {
-            if (!savedOffsets) savedOffsets = {};
-            var curOff = savedOffsets[id] || {x:0, y:0};
-            var tf = 'translate('+curOff.x+'px,'+curOff.y+'px) scale(1)';
-            el.style.setProperty('--t', tf);
-            el.style.transform = tf;
-          });
-          setTimeout(function(){ 
-            el.style.transition=''; 
-            el.style.zIndex=''; 
-          }, 350);
-        } else {
-          el.style.transition=''; 
-          el.style.zIndex='';
-        }
-        longPressed=false; 
-        moved=false;
-      });
-    });
+      toast.classList.remove('show');
+      setTimeout(function() { document.body.removeChild(toast); }, 300);
+    }, 1500);
   }
 
-  // ============ 初始化 ============
-  openDB(function() {
-    initIconDrag();
-    window.dispatchEvent(new CustomEvent('dbReady'));
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      showToast('开发中');
+    });
   });
 
   window.AppNav = {
     showPage: showPage,
-    setActiveTab: setActiveTab
+    setActiveTab: setActiveTab,
+    showToast: showToast
   };
 
+  // ============ 初始化 ============
+  openDB(function() {
+    setupPhotoAction();
+    window.dispatchEvent(new CustomEvent('dbReady'));
+  });
+
 })();
+```
+
+---
+
+### 第三步：`components.js` 里把之前的 `setupPhotoActionCard` 相关代码**全部删掉**，直接调用 `window.PhotoAction.show()`
+
+把 `components.js` 里所有调用 `showPhotoAction(...)` 的地方改成 `PhotoAction.show(...)`：
+
+```javascript
+    // 点击背景
+    cardUpper.addEventListener('click', function() {
+      if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
+      PhotoAction.show(
+        function() { bgFileInput.click(); },
+        function() {
+          cardBg.style.backgroundImage = '';
+          cardBg.classList.remove('has-bg');
+          if (window.AppDB) AppDB.delete('card_bg');
+          saveCardState();
+        }
+      );
+    });
+
+    // 点击头像
+    avatarBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
+      PhotoAction.show(
+        function() { avatarFileInput.click(); },
+        function() {
+          avatarImg.src = '';
+          avatarBtn.classList.remove('has-img');
+          if (window.AppDB) AppDB.delete('card_avatar');
+          saveCardState();
+        }
+      );
+    });
+
+    // 消息头像
+    messageAvatar.addEventListener('click', function(e) {
+      e.stopPropagation();
+      PhotoAction.show(
+        function() { avatarFileInput.click(); },
+        function() {
+          messageAvatarImg.src = '';
+          messageAvatar.classList.remove('has-img');
+          if (window.AppDB) AppDB.delete('message_avatar');
+        }
+      );
+    });
