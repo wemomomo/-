@@ -35,7 +35,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   position: fixed;
   top: calc(env(safe-area-inset-top, 0) + 16px);
   right: 16px;
-  z-index: 9999;
+  z-index: 1;
   display: none;
   align-items: center;
   gap: 6px;
@@ -68,7 +68,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   transform: translate(-50%, -50%) scale(0.9);
   padding: 12px 24px; background: rgba(0, 0, 0, 0.8);
   color: #fff; border-radius: 12px; font-size: 14px; font-weight: 500;
-  z-index: 99999; opacity: 0; pointer-events: none;
+  z-index: 100; opacity: 0; pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .toast-message.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -79,7 +79,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   transform: translate(-50%, -50%) scale(0.9);
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-radius: 14px; overflow: hidden; z-index: 99999;
+  border-radius: 14px; overflow: hidden; z-index: 100;
   opacity: 0; pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease; min-width: 200px;
 }
@@ -94,7 +94,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 .photo-action-card button:active { background: rgba(0,0,0,0.05); }
 .photo-action-mask {
   position: fixed; inset: 0; background: transparent;
-  z-index: 99998; display: none;
+  z-index: 1; display: none;
 }
 .photo-action-mask.show { display: block; }
 
@@ -102,7 +102,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 .crop-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200000;
+  z-index: 100;
   background: rgba(0,0,0,0.9);
   display: none;
   flex-direction: column;
