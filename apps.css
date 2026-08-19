@@ -8,6 +8,7 @@
   position: relative;
 }
 
+/* ========== 功能图标（独立可拖拽） ========== */
 .app-icon { 
   display: flex; 
   flex-direction: column; 
@@ -15,6 +16,8 @@
   gap: 6px; 
   cursor: pointer;
   position: relative;
+  width: 60px;
+  flex-shrink: 0;
 }
 .app-icon:active .icon-box { transform: scale(.88); }
 
