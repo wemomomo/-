@@ -33,6 +33,46 @@ html, body {
 }
 .page.active { display:flex; }
 
+/* ========== 编辑按钮 ========== */
+.edit-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 122, 255, 0.9);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 30;
+}
+.edit-mode .edit-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+.tabbar-edit-btn {
+  top: auto;
+  bottom: 90px;
+  right: 16px;
+}
+
+/* 拖拽状态 */
+.draggable {
+  transition: transform 0.2s ease;
+}
+.edit-mode .draggable {
+  cursor: move;
+}
+.dragging {
+  opacity: 0.8;
+  z-index: 1000;
+}
+
 /* ========== 个人卡片 ========== */
 .profile-card {
   width: 100%;
@@ -43,7 +83,6 @@ html, body {
   flex-shrink: 0;
 }
 
-/* 背景图层，铺满整个卡片 */
 .card-bg {
   position: absolute;
   inset: 0;
@@ -63,7 +102,6 @@ html, body {
   pointer-events: none;
 }
 
-/* 上半部分，纯透明，只是占位让背景图露出 */
 .card-upper {
   position: relative;
   z-index: 1;
@@ -71,7 +109,6 @@ html, body {
   cursor: pointer;
 }
 
-/* 下半部分 */
 .card-lower {
   position: relative;
   z-index: 1;
@@ -81,7 +118,6 @@ html, body {
   align-items: center;
 }
 
-/* 下半部分的遮罩层（颜色+透明度+毛玻璃） */
 .lower-overlay {
   position: absolute;
   inset: 0;
@@ -94,7 +130,6 @@ html, body {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* 头像 - 骑在分割线正中间，完全遮住分割线 */
 .avatar-wrapper {
   width: 75px;
   height: 75px;
@@ -118,7 +153,6 @@ html, body {
 .avatar-wrapper.has-img img { display: block; }
 .avatar-wrapper.has-img .avatar-placeholder { display: none; }
 
-/* 四行文字区域，在头像正下方 */
 .info-area {
   position: relative;
   z-index: 1;
@@ -131,7 +165,6 @@ html, body {
   width: 100%;
 }
 
-/* 可编辑文字需要允许选择 */
 .info-text {
   width: 100%;
   text-align: center;
@@ -187,7 +220,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
-  position: relative; /* ▼▼▼ 加上这个让 badge 相对于卡片定位 ▼▼▼ */
+  position: relative;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   border: 1px solid #f0f0f0;
@@ -236,7 +269,7 @@ html, body {
 
 .message-badge {
   position: absolute;
-  top: -10px; /* 现在这个 top 会生效了 */
+  top: -10px;
   right: 10px;
   background: #f2f2f7;
   border-radius: 12px;
@@ -250,7 +283,6 @@ html, body {
   width: 14px;
   height: 14px;
   color: #8e8e93;
-  position: relative;
 }
 
 .message-badge span {
@@ -260,7 +292,7 @@ html, body {
 }
 
 
-/* ========== 底部编辑面板 ========== */
+/* ========== 编辑面板 ========== */
 .edit-panel {
   position: fixed;
   bottom: 0;
@@ -268,7 +300,7 @@ html, body {
   right: 0;
   max-width: 430px;
   margin: 0 auto;
-  background: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px 20px 0 0;
@@ -276,6 +308,8 @@ html, body {
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 200;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 .edit-panel.show { transform: translateY(0); }
 
@@ -288,6 +322,34 @@ html, body {
 }
 .edit-panel-content { display: flex; flex-direction: column; gap: 14px; }
 
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.control-group {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  border: 1px solid #007aff;
+  background: white;
+  color: #007aff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.action-btn.danger {
+  border-color: #ff3b30;
+  color: #ff3b30;
+}
+
 .control-row {
   display: flex;
   align-items: center;
@@ -297,7 +359,7 @@ html, body {
 .control-row input[type="color"] { width: 36px; height: 28px; border: 1px solid #e5e5ea; border-radius: 6px; background: none; cursor: pointer; padding: 2px; }
 .control-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 5px; background: #e5e5ea; border-radius: 99px; outline: none; }
 .control-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #fff; border-radius: 50%; border: 1px solid #d1d1d6; box-shadow: 0 1px 4px rgba(0,0,0,.15); cursor: pointer; }
-.opacity-value { font-size: 13px; color: #8e8e93; min-width: 36px; text-align: right; }
+.opacity-value { font-size: 13px; color: #8e8e93; min-width: 48px; text-align: right; }
 
 .toggle-switch { position: relative; width: 44px; height: 24px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -313,10 +375,10 @@ input:checked + label:before { transform: translateX(20px); }
   color: white;
   font-size: 15px;
   font-weight: 600;
-  padding: 10px;
+  padding: 12px;
   border-radius: 12px;
   cursor: pointer;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 .edit-panel-mask {
@@ -338,6 +400,7 @@ input:checked + label:before { transform: translateX(20px); }
   gap:16px 12px; 
   padding:16px 0 0;
   flex-shrink: 0;
+  position: relative;
 }
 .app-icon { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
 .app-icon:active .icon-box { transform:scale(.88); }
@@ -345,15 +408,105 @@ input:checked + label:before { transform: translateX(20px); }
 .app-icon .icon-box svg { width:26px; height:26px; stroke:#1c1c1e; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 .app-icon .icon-label { font-size:11px; color:#3c3c43; font-weight:500; letter-spacing:.3px; }
 
-/* ========== 底部 TabBar ========== */
-.tab-bar { display:flex; align-items:flex-end; justify-content:space-around; padding:8px 0 env(safe-area-inset-bottom, 8px); height:83px; background:rgba(255,255,255,.92); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:0.5px solid rgba(60,60,67,.18); position:relative; z-index:100; }
-.tab-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 12px; }
+/* ========== 底部栏 (苹果胶囊样式) ========== */
+.tab-bar { 
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  padding: 8px 16px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  background: transparent;
+  position:relative; 
+  z-index:100;
+}
+
+.tab-bar-capsule {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 0.5px solid rgba(60,60,67,.18);
+  border-radius: 999px;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 380px;
+  transition: all 0.3s ease;
+}
+
+.tab-item { 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+  gap:3px; 
+  cursor:pointer; 
+  padding:6px 12px;
+  -webkit-user-select:none; 
+  user-select:none;
+}
 .tab-item:active { opacity:.5; }
-.tab-icon { height:28px; display:flex; align-items:center; justify-content:center; }
-.tab-icon svg { width:24px; height:24px; stroke:#8e8e93; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; transition:stroke .15s ease; }
+.tab-icon { 
+  height:26px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+}
+.tab-icon svg { width:22px; height:22px; stroke:#8e8e93; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; transition:stroke .15s ease; }
 .tab-label { font-size:10px; font-weight:500; color:#8e8e93; transition:color .15s ease; }
 .tab-item.active .tab-icon svg { stroke:#1c1c1e; }
 .tab-item.active .tab-label { color:#1c1c1e; }
+
+/* ========== 裁剪弹窗 ========== */
+.crop-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.crop-modal.show { display: flex; }
+
+.crop-container {
+  width: 100%;
+  max-width: 430px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+.crop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+}
+.crop-cancel, .crop-confirm {
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+}
+.crop-header span {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.crop-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.crop-area img {
+  max-width: 100%;
+  display: block;
+}
 
 .page-title { font-size:28px; font-weight:700; letter-spacing:-.5px; padding:8px 0; }
 .placeholder-card { background:#f9f9f9; border:1px solid #efefef; border-radius:14px; padding:24px; text-align:center; color:#8e8e93; font-size:14px; }
