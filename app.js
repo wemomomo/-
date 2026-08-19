@@ -231,8 +231,15 @@ document.body.appendChild(overlay);
         });
       });
 
-      overlay.querySelector('.crop-cancel').addEventListener('click', function() { overlay.remove(); });
+            var canInteract = false;
+      setTimeout(function() { canInteract = true; }, 600);
+
+      overlay.querySelector('.crop-cancel').addEventListener('click', function() {
+        if (!canInteract) return;
+        overlay.remove();
+      });
       overlay.querySelector('.crop-confirm').addEventListener('click', function() {
+        if (!canInteract) return;
         var output = document.createElement('canvas');
         var outW = Math.round(crop.w / scale), outH = Math.round(crop.h / scale);
         output.width = outW; output.height = outH;
