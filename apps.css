@@ -7,12 +7,14 @@
   flex-shrink: 0;
   position: relative;
 }
+
 .app-icon { 
   display: flex; 
   flex-direction: column; 
   align-items: center; 
   gap: 6px; 
-  cursor: pointer; 
+  cursor: pointer;
+  position: relative;  /* ← 加这行，让编辑按钮相对定位 */
 }
 .app-icon:active .icon-box { transform: scale(.88); }
 .app-icon .icon-box { 
@@ -40,4 +42,12 @@
   color: #3c3c43; 
   font-weight: 500; 
   letter-spacing: .3px; 
+}
+
+/* 图标的编辑按钮 */
+.icon-edit-btn {
+  top: -5px;
+  right: -5px;
+  padding: 3px 6px;
+  font-size: 10px;
 }
