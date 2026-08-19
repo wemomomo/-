@@ -75,3 +75,29 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 
 .page-title { font-size:28px; font-weight:700; letter-spacing:-.5px; padding:8px 0; }
 .placeholder-card { background:#f9f9f9; border:1px solid #efefef; border-radius:14px; padding:24px; text-align:center; color:#8e8e93; font-size:14px; }
+
+/* ========== Toast 提示 ========== */
+.toast-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast-message.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+
+
