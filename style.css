@@ -251,3 +251,30 @@ input:checked + label:before { transform: translateX(18px); }
   max-width: 100%;
   display: block;
 }
+
+/* ========== 首页布局：卡片和图标的间距 ========== */
+.profile-card {
+  margin-bottom: 20px;  /* ← 卡片下面留间距 */
+}
+
+.app-icon-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: absolute;  /* ← 改成 absolute，这样 transform 才能自由移动 */
+  margin: 0;  /* ← 去掉 margin */
+  vertical-align: top;
+  transform: var(--t, translate(0px, 0px));
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+/* 初始位置（在卡片下方，网格排列）*/
+#iconPlot { left: 20px; top: 340px; }
+#iconMessage { left: 110px; top: 340px; }
+#iconExplore { left: 200px; top: 340px; }
+#iconVault { left: 290px; top: 340px; }
+
