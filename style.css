@@ -34,7 +34,7 @@ html, body { height:100%; background:#ffffff; color:#1c1c1e; overflow:hidden; }
 
 .icons-row {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   justify-content: flex-start;
   flex-wrap: wrap;
   flex-shrink: 0;
