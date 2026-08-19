@@ -70,7 +70,7 @@
 /* 底部栏编辑按钮定位 */
 .tabbar-edit-btn {
   position: absolute;
-  top: -40px;
+  top: -50px;
   right: 0;
   pointer-events: auto;
 }
