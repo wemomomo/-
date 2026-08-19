@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -121,11 +122,12 @@
           + '<span class="popup-card-value" id="cardOpacityValue">80%</span></div>';
         document.body.appendChild(cardPopup);
 
-        document.getElementById('cardGlassToggle').addEventListener('change', applyCardOverlay);
-        document.getElementById('cardColorPicker').addEventListener('input', applyCardOverlay);
-        document.getElementById('cardOpacitySlider').addEventListener('input', applyCardOverlay);
+        document.getElementById('cardGlassToggle').addEventListener('change', applyFromControls);
+        document.getElementById('cardColorPicker').addEventListener('input', applyFromControls);
+        document.getElementById('cardOpacitySlider').addEventListener('input', applyFromControls);
       }
 
+      // 把当前保存的数据填入控件
       loadStyleToControls();
       positionCardPopup();
       cardPopupMask.classList.add('show');
@@ -169,24 +171,32 @@
         if (colorPicker) colorPicker.value = state.style.color;
         if (opacitySlider) opacitySlider.value = state.style.opacity;
         if (opacityValue) opacityValue.textContent = state.style.opacity + '%';
-        applyCardOverlay();
       });
     }
 
-    function applyCardOverlay() {
+    // 从控件读取值并应用到界面
+    function applyFromControls() {
       var colorPicker = document.getElementById('cardColorPicker');
       var opacitySlider = document.getElementById('cardOpacitySlider');
       var glassToggle = document.getElementById('cardGlassToggle');
       var opacityValue = document.getElementById('cardOpacityValue');
       if (!colorPicker || !opacitySlider || !glassToggle) return;
+
       var color = colorPicker.value;
       var opacity = opacitySlider.value / 100;
       if (opacityValue) opacityValue.textContent = opacitySlider.value + '%';
+
+      applyOverlayStyle(glassToggle.checked, color, opacity);
+      saveCardState();
+    }
+
+    // 直接用数据应用样式（不依赖控件）
+    function applyOverlayStyle(glass, color, opacity) {
       var r = parseInt(color.slice(1,3), 16);
       var g = parseInt(color.slice(3,5), 16);
       var b = parseInt(color.slice(5,7), 16);
       lowerOverlay.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
-      if (glassToggle.checked) lowerOverlay.classList.add('glass-effect');
+      if (glass) lowerOverlay.classList.add('glass-effect');
       else lowerOverlay.classList.remove('glass-effect');
     }
 
@@ -237,8 +247,12 @@
             }
           });
         }
+        // 直接用保存的数据恢复样式，不依赖弹出框控件
         if (state.style) {
-          setTimeout(function() { applyCardOverlay(); }, 100);
+          var color = state.style.color || '#ffffff';
+          var opacity = (state.style.opacity || 80) / 100;
+          var glass = state.style.glass || false;
+          applyOverlayStyle(glass, color, opacity);
         }
       });
     }
