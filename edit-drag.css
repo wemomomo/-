@@ -1,0 +1,56 @@
+/* ========== 编辑按钮 ========== */
+.edit-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 122, 255, 0.95);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 30;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+.edit-mode .edit-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+.edit-btn:active {
+  transform: scale(0.95);
+}
+
+/* 底部栏的编辑按钮 */
+.tabbar-edit-btn {
+  top: auto;
+  bottom: 95px;
+  right: 16px;
+  border-radius: 20px;
+  padding: 8px 14px;
+}
+
+/* 编辑模式下组件的视觉提示 */
+.edit-mode .draggable {
+  outline: 2px dashed rgba(0, 122, 255, 0.4);
+  outline-offset: 4px;
+  border-radius: 24px;
+}
+
+/* 拖拽状态 */
+.draggable {
+  transition: transform 0.2s ease;
+}
+.edit-mode .draggable {
+  cursor: move;
+}
+.dragging {
+  opacity: 0.85;
+  z-index: 1000;
+  outline: 2px solid rgba(0, 122, 255, 0.6) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
