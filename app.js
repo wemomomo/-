@@ -77,12 +77,14 @@
       if (cropper) cropper.destroy();
       cropper = new Cropper(cropImage, {
         aspectRatio: cropAspect,
-        viewMode: 1,
+        viewMode: 3,
         autoCropArea: 1,
         movable: false,
         zoomable: false,
         scalable: false,
-        background: true
+        background: false,
+        guides: false,
+        highlight: false
       });
     }, 100);
   }
@@ -159,24 +161,12 @@
     photoActionOnDelete = null;
   }
 
-  // 暴露到全局
   window.PhotoAction = {
     show: showPhotoAction,
     hide: hidePhotoAction
   };
 
-  // ============ 页面导航 ============
-  var pages = document.querySelectorAll('.page');
-  var tabs = document.querySelectorAll('.tab-item');
-
-  function showPage(name) {
-    pages.forEach(function(p) { p.classList.toggle('active', p.dataset.page === name); });
-  }
-  function setActiveTab(tab) {
-    tabs.forEach(function(t) { t.classList.toggle('active', t === tab); });
-  }
-
-  // Toast 提示
+  // ============ Toast 提示 ============
   function showToast(message) {
     var toast = document.createElement('div');
     toast.className = 'toast-message';
@@ -187,6 +177,17 @@
       toast.classList.remove('show');
       setTimeout(function() { document.body.removeChild(toast); }, 300);
     }, 1500);
+  }
+
+  // ============ 页面导航 ============
+  var pages = document.querySelectorAll('.page');
+  var tabs = document.querySelectorAll('.tab-item');
+
+  function showPage(name) {
+    pages.forEach(function(p) { p.classList.toggle('active', p.dataset.page === name); });
+  }
+  function setActiveTab(tab) {
+    tabs.forEach(function(t) { t.classList.toggle('active', t === tab); });
   }
 
   tabs.forEach(function(tab) {
@@ -208,53 +209,3 @@
   });
 
 })();
-```
-
----
-
-### 第三步：`components.js` 里把之前的 `setupPhotoActionCard` 相关代码**全部删掉**，直接调用 `window.PhotoAction.show()`
-
-把 `components.js` 里所有调用 `showPhotoAction(...)` 的地方改成 `PhotoAction.show(...)`：
-
-```javascript
-    // 点击背景
-    cardUpper.addEventListener('click', function() {
-      if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
-      PhotoAction.show(
-        function() { bgFileInput.click(); },
-        function() {
-          cardBg.style.backgroundImage = '';
-          cardBg.classList.remove('has-bg');
-          if (window.AppDB) AppDB.delete('card_bg');
-          saveCardState();
-        }
-      );
-    });
-
-    // 点击头像
-    avatarBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
-      PhotoAction.show(
-        function() { avatarFileInput.click(); },
-        function() {
-          avatarImg.src = '';
-          avatarBtn.classList.remove('has-img');
-          if (window.AppDB) AppDB.delete('card_avatar');
-          saveCardState();
-        }
-      );
-    });
-
-    // 消息头像
-    messageAvatar.addEventListener('click', function(e) {
-      e.stopPropagation();
-      PhotoAction.show(
-        function() { avatarFileInput.click(); },
-        function() {
-          messageAvatarImg.src = '';
-          messageAvatar.classList.remove('has-img');
-          if (window.AppDB) AppDB.delete('message_avatar');
-        }
-      );
-    });
