@@ -165,3 +165,73 @@ html, body { height:100%; background:#ffffff; color:#1c1c1e; overflow:hidden; }
 .crop-workspace canvas {
   max-width: 100%; max-height: 100%; touch-action: none;
 }
+
+/* ========== 设置页 ========== */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: #f5f5f5;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.settings-item:active {
+  background: #f9f9f9;
+}
+
+.settings-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f0f0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.settings-item-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: #1c1c1e;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.settings-item-text {
+  flex: 1;
+  min-width: 0;
+}
+.settings-item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+.settings-item-desc {
+  font-size: 12px;
+  color: #8e8e93;
+  margin-top: 2px;
+}
+
+.settings-arrow {
+  width: 16px;
+  height: 16px;
+  stroke: #c7c7cc;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
