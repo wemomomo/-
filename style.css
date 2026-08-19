@@ -37,7 +37,7 @@ html, body {
 /* ========== 个人卡片 ========== */
 .profile-card {
   width: 100%;
-  aspect-ratio: 16 / 13;
+  aspect-ratio: 16 / 12;
   border-radius: 24px;
   position: relative;
   overflow: hidden;
@@ -97,8 +97,8 @@ html, body {
 
 /* ▼▼▼ 头像 - 骑在分割线正中间，完全遮住分割线 ▼▼▼ */
 .avatar-wrapper {
-  width: 72px;
-  height: 72px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   background: #fdfdfd;
   border: 2px solid #fff; /* 加厚边框确保完全遮住分割线 */
@@ -126,7 +126,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   margin-top: 44px;
   padding: 0 20px;
   width: 100%;
@@ -137,7 +137,7 @@ html, body {
   width: 100%;
   text-align: center;
   font-weight: 500;
-  color: #fff;
+  color: #1a1a1a;
   padding: 0;
   border-radius: 6px;
   outline: none;
@@ -148,13 +148,13 @@ html, body {
   -webkit-user-select: text;
   user-select: text;
 }
-.info-text:focus { background: rgba(0, 122, 255, 0.08); }
+.info-text:focus { background: rgba(255, 255, 255, 0.08); }
 .info-text:empty::before {
   content: attr(data-placeholder);
-  color: #c7c7cc;
+  color: #1a1a1a;
   font-weight: 400;
 }
-.info-text.line-1 { font-size: 17px; font-weight: 600; margin-bottom: 1px; }
+.info-text.line-1 { font-size: 17px; font-weight: 600; margin-bottom: 0; }
 .info-text.line-2 { font-size: 13px; }
 .info-text.line-3 { font-size: 13px; }
 .info-text.line-4 {
