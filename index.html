@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -48,7 +49,7 @@
             </div>
           </div>
         </div>
-    <button class="edit-btn tabbar-edit-btn" data-edit-target="tabbar">编辑</button>
+        <button class="edit-btn" data-edit-target="card">编辑</button>
       </div>
 
       <div class="message-card draggable" id="messageCard" data-component="message">
@@ -58,7 +59,7 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
         </div>
         <div class="message-content">
-          <div class="message-preview" id="messagePreview" contenteditable="true">暂无消息</div>
+          <div class="message-preview" id="messagePreview" contenteditable="true">点击编辑消息内容...</div>
         </div>
         <div class="message-badge">
           <svg class="badge-icon" viewBox="0 0 20 22">
@@ -115,6 +116,9 @@
     <div class="page" data-page="life"><div class="page-title">浮生</div></div>
   </div>
 
+  <!-- 底部栏编辑按钮（独立定位，不放在 tab-bar 里面） -->
+  <button class="edit-btn tabbar-edit-btn" data-edit-target="tabbar">编辑</button>
+
   <div class="tab-bar">
     <div class="tab-bar-capsule">
       <div class="tab-item" data-tab="mask">
@@ -137,7 +141,7 @@
   </div>
 </div>
 
-<!-- 裁剪器（预先放在页面里，默认隐藏） -->
+<!-- 裁剪器 -->
 <div class="crop-overlay" id="cropOverlay">
   <div class="crop-container">
     <div class="crop-header">
