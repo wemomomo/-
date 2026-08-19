@@ -22,7 +22,7 @@
   var touchStartY = 0;
 
   // ▼▼▼ 初始排布顺序（按你 HTML 里的原始顺序写） ▼▼▼
-  var defaultOrder = ['card', 'message', 'icon-plot', 'icon-message', 'icon-explore', 'icon-vault'];
+var defaultOrder = ['card', 'message', 'icons'];
 
   // ============ 等待数据库就绪 ============
   window.addEventListener('dbReady', loadDragPositions);
