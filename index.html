@@ -2,116 +2,95 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#ffffff">
-  <title>App</title>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="components.css">
-  <link rel="stylesheet" href="apps.css">
-  <link rel="stylesheet" href="tabbar.css">
-  <link rel="stylesheet" href="edit-drag.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>App</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="apps.css">
+<link rel="stylesheet" href="tabbar.css">
+<link rel="stylesheet" href="edit-drag.css">
 </head>
 <body>
 
 <div class="app-shell">
   <div class="page-container">
-    
-    <button class="reset-layout-btn" id="resetLayoutBtn">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-        <path d="M21 3v5h-5"/>
-        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-        <path d="M3 21v-5h5"/>
-      </svg>
-      <span>恢复初始</span>
-    </button>
 
     <div class="page active" data-page="home">
       
-      <!-- ▼▼▼ 个人卡片（完整版） ▼▼▼ -->
+      <!-- 个人卡片 -->
       <div class="profile-card draggable" id="profileCard" data-component="card">
+        <div class="card-bg" id="cardBg"></div>
         
-        <div class="card-header" id="cardHeader">
-          <div class="edit-prompt">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-            <span>长按卡片进入编辑</span>
+        <div class="card-upper" id="cardUpper"></div>
+        
+        <div class="card-lower">
+          <div class="lower-overlay" id="lowerOverlay"></div>
+          
+          <div class="avatar-wrapper" id="avatarBtn">
+            <img id="avatarImg" alt="头像">
+            <svg class="avatar-placeholder" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
           </div>
-        </div>
-
-        <div class="card-body" id="cardBody">
-          <div class="info-text line-1" contenteditable="false" data-key="line1" data-placeholder="姓名"></div>
-          <div class="info-text line-2" contenteditable="false" data-key="line2" data-placeholder="身份/称号"></div>
-          <div class="info-text line-3" contenteditable="false" data-key="line3" data-placeholder="签名/心情"></div>
-          <div class="info-text line-4" contenteditable="false" data-key="line4">
-            <svg class="location-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span class="location-text" data-placeholder="当前位置"></span>
-          </div>
-        </div>
-
-        <div class="avatar-wrapper" id="avatarBtn">
-          <img id="avatarImg" alt="头像">
-          <svg class="avatar-placeholder" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-        </div>
-
-        <div class="edit-controls" id="editControls">
-          <div class="control-group">
-            <label>背景模糊</label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="glassToggle">
-              <label for="glassToggle"></label>
+          
+          <div class="info-area">
+            <div class="info-text line-1" contenteditable="true" data-key="line1" data-placeholder="姓名"></div>
+            <div class="info-text line-2" contenteditable="true" data-key="line2" data-placeholder="身份/称号"></div>
+            <div class="info-text line-3" contenteditable="true" data-key="line3" data-placeholder="签名/心情"></div>
+            <div class="info-text line-4">
+              <svg class="location-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span class="location-text" contenteditable="true"></span>
             </div>
           </div>
-          <div class="control-group">
-            <label>背景颜色</label>
-            <input type="color" id="colorPicker" value="#f0f0f0">
-          </div>
-          <div class="control-group range-group">
-            <label>透明度</label>
-            <input type="range" id="opacitySlider" min="0" max="1" step="0.05" value="0.5">
-          </div>
-          <button id="doneEditBtn">完成</button>
         </div>
-
-        <button class="edit-btn" data-edit-target="card">编辑</button>
       </div>
 
-      <!-- ▼▼▼ 四个图标 ▼▼▼ -->
-      <div class="icons-row">
-        <div class="app-icon-item" id="iconPlot">
-          <div class="app-icon-glass" id="iconPlotImg">
-            <div class="icon-image" data-icon="plot"></div>
-            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 6V4"/><path d="M16 6V4"/><path d="M12 6V3"/></svg>
-          </div>
-          <div class="app-icon-label" id="iconPlotLabel">剧情</div>
+      <!-- 消息卡片 -->
+      <div class="message-card draggable" id="messageCard" data-component="message">
+        <div class="message-avatar" id="messageAvatar">
+          <img id="messageAvatarImg" alt="角色头像">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
         </div>
-
-        <div class="app-icon-item" id="iconMessage">
-          <div class="app-icon-glass" id="iconMessageImg">
-            <div class="icon-image" data-icon="message"></div>
-            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div class="app-icon-label" id="iconMessageLabel">传讯</div>
+        <div class="message-content">
+          <div class="message-preview" id="messagePreview">暂无消息</div>
         </div>
-
-        <div class="app-icon-item" id="iconExplore">
-          <div class="app-icon-glass" id="iconExploreImg">
-            <div class="icon-image" data-icon="explore"></div>
-            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
-          </div>
-          <div class="app-icon-label" id="iconExploreLabel">万象</div>
+        <div class="message-badge">
+          <svg class="badge-icon" viewBox="0 0 20 22">
+            <path d="M4 2 L16 2 Q18 2 18 4 L18 12 Q18 14 16 14 L11 14 L10 17 L9 14 L4 14 Q2 14 2 12 L2 4 Q2 2 4 2 Z" 
+                  stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="6" cy="8" r="1" fill="currentColor"/>
+            <circle cx="10" cy="8" r="1" fill="currentColor"/>
+            <circle cx="14" cy="8" r="1" fill="currentColor"/>
+          </svg>
+          <span id="messageBadgeText">最新讯息</span>
         </div>
+      </div>
 
-        <div class="app-icon-item" id="iconVault">
-          <div class="app-icon-glass" id="iconVaultImg">
-            <div class="icon-image" data-icon="vault"></div>
-            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 12h18"/><circle cx="12" cy="14" r="1.5"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/></svg>
+      <!-- 四个图标 -->
+      <div class="app-grid">
+        <div class="app-icon" data-action="plot">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 6V4"/><path d="M16 6V4"/><path d="M12 6V3"/></svg>
           </div>
-          <div class="app-icon-label" id="iconVaultLabel">宝阁</div>
+          <div class="icon-label">剧情</div>
+        </div>
+        <div class="app-icon" data-action="message">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="icon-label">传讯</div>
+        </div>
+        <div class="app-icon" data-action="explore">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
+          </div>
+          <div class="icon-label">万象</div>
+        </div>
+        <div class="app-icon" data-action="vault">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 12h18"/><circle cx="12" cy="14" r="1.5"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/></svg>
+          </div>
+          <div class="icon-label">宝阁</div>
         </div>
       </div>
 
@@ -126,40 +105,36 @@
     <div class="page" data-page="life"><div class="page-title">浮生</div><div class="placeholder-card">浮生模块开发中</div></div>
   </div>
 
-  <div class="edit-overlay" id="editOverlay"></div>
-
-  <div class="tab-bar" id="tabBar">
-    <button class="edit-btn tabbar-edit-btn" data-edit-target="tabbar">编辑</button>
-    
-    <div class="tab-bar-capsule">
-      <div class="tab-item active" data-tab="home">
-        <div class="tab-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-        </div>
-        <div class="tab-label">面具</div>
+  <!-- 底部栏 -->
+  <div class="tab-bar">
+    <div class="tab-item active" data-tab="home">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
       </div>
-      <div class="tab-item" data-tab="character">
-        <div class="tab-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
-        </div>
-        <div class="tab-label">角色</div>
+      <div class="tab-label">面具</div>
+    </div>
+    <div class="tab-item" data-tab="character">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
       </div>
-      <div class="tab-item" data-tab="settings">
-        <div class="tab-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
-        </div>
-        <div class="tab-label">设置</div>
+      <div class="tab-label">角色</div>
+    </div>
+    <div class="tab-item" data-tab="settings">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
       </div>
-      <div class="tab-item" data-tab="life">
-        <div class="tab-icon">
-          <svg viewBox="0 0 24 24"><path d="M6 21c0 0 1-4 6-9s9-6 9-6-1 4-6 9-9 6-9 6z"/><path d="M6 21c0-3 2-6 5-8"/></svg>
-        </div>
-        <div class="tab-label">浮生</div>
+      <div class="tab-label">设置</div>
+    </div>
+    <div class="tab-item" data-tab="life">
+      <div class="tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M6 21c0 0 1-4 6-9s9-6 9-6-1 4-6 9-9 6-9 6z"/><path d="M6 21c0-3 2-6 5-8"/></svg>
       </div>
+      <div class="tab-label">浮生</div>
     </div>
   </div>
 </div>
 
+<!-- 裁剪弹窗 -->
 <div class="crop-overlay" id="cropModal">
   <div class="crop-container">
     <div class="crop-header">
@@ -176,7 +151,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script src="app.js"></script>
 <script src="components.js"></script>
-<script src="edit-drag.js"></script>
-<script src="tabbar.js"></script>
 </body>
 </html>
