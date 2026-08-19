@@ -68,7 +68,7 @@ html, body {
 .card-upper {
   position: relative;
   z-index: 1;
-  height: 40%;
+  height: 45%;
   cursor: pointer;
 }
 
@@ -76,7 +76,7 @@ html, body {
 .card-lower {
   position: relative;
   z-index: 1;
-  height: 60%;
+  height: 55%;
   display: flex;
   flex-direction: column;
   align-items: center;
