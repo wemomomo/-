@@ -1,4 +1,4 @@
-/* ========== 底部栏 (苹果胶囊样式) ========== */
+/* ========== 底部栏 ========== */
 .tab-bar {
   position: fixed;
   /* ▼▼▼ 用 calc 计算底部距离 ▼▼▼ */
@@ -23,8 +23,8 @@
   background: rgba(255,255,255,.92);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 0.5px solid rgba(60,60,67,.18);
-  border-radius: 20px;
+  border: 1px solid rgba(60,60,67,.18);
+  border-radius: 30px;
   padding: 8px 12px;
   width: 100%;
   transition: all 0.3s ease;
