@@ -43,3 +43,72 @@
   font-weight: 500; 
   letter-spacing: .3px; 
 }
+
+/* ========== 功能图标 ========== */
+.app-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 16px 12px; 
+  padding: 16px 0 0;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.app-icon { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 6px; 
+  cursor: pointer;
+  position: relative;
+}
+.app-icon:active .icon-box { transform: scale(.88); }
+
+.icon-box { 
+  width: 56px; 
+  height: 56px; 
+  border-radius: 14px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: #f2f2f7; 
+  border: 1px solid #e5e5ea; 
+  transition: transform .15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 图标图片层（覆盖在 SVG 上方） */
+.icon-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.icon-image.has-image {
+  opacity: 1;
+}
+
+/* SVG 层 */
+.icon-svg { 
+  width: 26px; 
+  height: 26px; 
+  stroke: #1c1c1e; 
+  stroke-width: 1.5; 
+  fill: none; 
+  stroke-linecap: round; 
+  stroke-linejoin: round;
+  position: relative;
+  z-index: 0;
+}
+
+.icon-label { 
+  font-size: 11px; 
+  color: #3c3c43; 
+  font-weight: 500; 
+  letter-spacing: .3px; 
+}
