@@ -5,7 +5,6 @@
   var tabbarPopup = null;
   var tabbarPopupMask = null;
 
-  // 等底部栏编辑按钮出现时绑定事件
   window.addEventListener('dbReady', function() {
     var tabbarEditBtn = document.querySelector('[data-edit-target="tabbar"]');
     if (tabbarEditBtn) {
@@ -41,11 +40,11 @@
         + '<span class="popup-card-value" id="tabbarBorderValue">0.5px</span></div>';
       document.body.appendChild(tabbarPopup);
 
-      document.getElementById('tabbarGlassToggle').addEventListener('change', applyTabbarStyle);
-      document.getElementById('tabbarBgColor').addEventListener('input', applyTabbarStyle);
-      document.getElementById('tabbarOpacitySlider').addEventListener('input', applyTabbarStyle);
-      document.getElementById('tabbarBorderColor').addEventListener('input', applyTabbarStyle);
-      document.getElementById('tabbarBorderWidth').addEventListener('input', applyTabbarStyle);
+      document.getElementById('tabbarGlassToggle').addEventListener('change', applyFromControls);
+      document.getElementById('tabbarBgColor').addEventListener('input', applyFromControls);
+      document.getElementById('tabbarOpacitySlider').addEventListener('input', applyFromControls);
+      document.getElementById('tabbarBorderColor').addEventListener('input', applyFromControls);
+      document.getElementById('tabbarBorderWidth').addEventListener('input', applyFromControls);
     }
 
     loadTabbarControls();
@@ -81,10 +80,8 @@
     tabbarPopup.style.top = top + 'px';
   }
 
-  function applyTabbarStyle() {
-    var capsule = document.querySelector('.tab-bar-capsule');
-    if (!capsule) return;
-
+  // 从控件读取并应用
+  function applyFromControls() {
     var glassToggle = document.getElementById('tabbarGlassToggle');
     var bgColor = document.getElementById('tabbarBgColor');
     var opacitySlider = document.getElementById('tabbarOpacitySlider');
@@ -95,29 +92,40 @@
 
     if (!glassToggle || !bgColor || !opacitySlider) return;
 
-    var color = bgColor.value;
-    var opacity = opacitySlider.value / 100;
-    opacityValue.textContent = opacitySlider.value + '%';
-    borderValue.textContent = borderWidth.value + 'px';
+    if (opacityValue) opacityValue.textContent = opacitySlider.value + '%';
+    if (borderValue) borderValue.textContent = borderWidth.value + 'px';
 
-    var r = parseInt(color.slice(1,3), 16);
-    var g = parseInt(color.slice(3,5), 16);
-    var b = parseInt(color.slice(5,7), 16);
+    applyTabbarStyle(
+      glassToggle.checked,
+      bgColor.value,
+      opacitySlider.value / 100,
+      borderColor.value,
+      borderWidth.value
+    );
+    saveTabbarState();
+  }
+
+  // 直接用数据应用样式（不依赖控件）
+  function applyTabbarStyle(glass, bgColor, opacity, borderColor, borderWidth) {
+    var capsule = document.querySelector('.tab-bar-capsule');
+    if (!capsule) return;
+
+    var r = parseInt(bgColor.slice(1,3), 16);
+    var g = parseInt(bgColor.slice(3,5), 16);
+    var b = parseInt(bgColor.slice(5,7), 16);
 
     capsule.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
-    capsule.style.borderColor = borderColor.value;
-    capsule.style.borderWidth = borderWidth.value + 'px';
+    capsule.style.borderColor = borderColor;
+    capsule.style.borderWidth = borderWidth + 'px';
     capsule.style.borderStyle = 'solid';
 
-    if (glassToggle.checked) {
+    if (glass) {
       capsule.style.backdropFilter = 'saturate(180%) blur(20px)';
       capsule.style.webkitBackdropFilter = 'saturate(180%) blur(20px)';
     } else {
       capsule.style.backdropFilter = 'none';
       capsule.style.webkitBackdropFilter = 'none';
     }
-
-    saveTabbarState();
   }
 
   function saveTabbarState() {
@@ -161,14 +169,18 @@
     });
   }
 
+  // 页面加载时直接从数据恢复样式
   function loadTabbarState() {
     if (!window.AppDB) return;
     AppDB.get('tabbar_state', function(state) {
       if (!state) return;
-      setTimeout(function() {
-        showTabbarPopup();
-        hideTabbarPopup();
-      }, 50);
+      applyTabbarStyle(
+        state.glass,
+        state.bgColor || '#ffffff',
+        (state.opacity || 92) / 100,
+        state.borderColor || '#3c3c43',
+        state.borderWidth || '0.5'
+      );
     });
   }
 
