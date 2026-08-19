@@ -1,0 +1,217 @@
+/* ========== 个人卡片 ========== */
+.profile-card {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #e9e9f0;
+  z-index: 0;
+}
+.card-bg:not(.has-bg)::after {
+  content: "轻点上传背景";
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: #8e8e93;
+  pointer-events: none;
+}
+
+.card-upper {
+  position: relative;
+  z-index: 1;
+  height: 45%;
+  cursor: pointer;
+}
+
+.card-lower {
+  position: relative;
+  z-index: 1;
+  height: 55%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lower-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 0;
+  transition: background-color 0.3s ease;
+}
+.lower-overlay.glass-effect {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.avatar-wrapper {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background: #fdfdfd;
+  border: 2px solid #fff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  cursor: pointer;
+}
+.avatar-wrapper img { display: none; width: 100%; height: 100%; object-fit: cover; }
+.avatar-placeholder { width: 32px; height: 32px; stroke: #8e8e93; stroke-width: 1.5; fill: none; }
+.avatar-wrapper.has-img img { display: block; }
+.avatar-wrapper.has-img .avatar-placeholder { display: none; }
+
+.info-area {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: 44px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+.info-text {
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+  color: #1a1a1a;
+  padding: 0;
+  border-radius: 6px;
+  outline: none;
+  transition: background-color .2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.info-text:focus { background: rgba(255, 255, 255, 0.08); }
+.info-text:empty::before {
+  content: attr(data-placeholder);
+  color: #1a1a1a;
+  font-weight: 400;
+}
+.info-text.line-1 { font-size: 17px; font-weight: 600; margin-bottom: 0; }
+.info-text.line-2 { font-size: 13px; }
+.info-text.line-3 { font-size: 13px; }
+.info-text.line-4 {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: #6c6c70;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.info-text.line-4:empty::before { content: none; }
+.location-icon {
+  width: 13px; height: 13px; fill: #8e8e93; flex-shrink: 0;
+}
+.location-text {
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.location-text:empty::before { content: '所在地'; color: #c7c7cc; font-weight: 400; }
+
+
+/* ========== 消息卡片 ========== */
+.message-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.message-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f2f2f7;
+  border: 1px solid #e5e5ea;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.message-avatar img {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.message-avatar svg {
+  width: 24px;
+  height: 24px;
+  stroke: #c7c7cc;
+  stroke-width: 1.5;
+  fill: none;
+}
+.message-avatar.has-img img { display: block; }
+.message-avatar.has-img svg { display: none; }
+
+.message-content {
+  flex: 1;
+  overflow: hidden;
+}
+.message-preview {
+  font-size: 14px;
+  color: #8e8e93;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-badge {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: #f2f2f7;
+  border-radius: 12px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-icon {
+  width: 14px;
+  height: 14px;
+  color: #8e8e93;
+}
+
+.message-badge span {
+  font-size: 10px;
+  color: #8e8e93;
+  font-weight: 500;
+}
