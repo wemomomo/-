@@ -7,32 +7,49 @@
   user-select: none;
   -webkit-touch-callout: none;
 }
-html, body { 
-  height: 100%; 
-  background: #ffffff; 
-  color: #1c1c1e; 
-  overflow: hidden; 
+html {
+  overflow: hidden;
+  overscroll-behavior: none;
+  width: 100vw;
+  height: 100vh;  /* ← 改成 100vh */
 }
 
-.app-shell { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; position: relative; }
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  width: 100vw;
+  height: 100vh;  /* ← 改成 100vh */
+  background: #ffffff;  /* ← 有背景色 */
+  color: #1c1c1e;
+}
 
-.page-container { 
-  flex: 1; 
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;  /* ← 保持 100vh */
+  max-width: 430px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-container {
+  flex: 1;
   overflow: hidden;
   padding: 0;
-  /* ▼▼▼ 适配顶部的刘海屏安全区 ▼▼▼ */
-  padding-top: env(safe-area-inset-top, 0); 
+  padding-top: env(safe-area-inset-top, 0);
   display: flex;
   flex-direction: column;
 }
-.page { 
-  display: none; 
-  flex-direction: column; 
-  gap: 16px; 
+
+.page {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
   height: 100%;
   overflow: hidden;
-  /* ▼▼▼ 适配底部的悬浮胶囊栏，留出空隙，防止内容被遮挡 ▼▼▼ */
-  padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 95px); 
+  /* ▼▼▼ 底部 padding 要用 calc 计算 ▼▼▼ */
+  padding: 16px 16px calc(85px + env(safe-area-inset-bottom, 0px));
 }
 .page.active { display: flex; }
 
