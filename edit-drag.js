@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -6,6 +7,7 @@
   var editBtns = document.querySelectorAll('.edit-btn');
   var draggables = document.querySelectorAll('.draggable');
   var appShell = document.querySelector('.app-shell');
+  var resetLayoutBtn = document.getElementById('resetLayoutBtn');
 
   var longPressTimer;
   var isEditMode = false;
@@ -20,6 +22,9 @@
   // 长按检测变量
   var touchStartX = 0;
   var touchStartY = 0;
+
+  // ▼▼▼ 初始排布顺序（按你 HTML 里的顺序） ▼▼▼
+  var defaultOrder = ['card', 'message', 'icon-plot', 'icon-message', 'icon-explore', 'icon-vault'];
 
   // ============ 等待数据库就绪 ============
   window.addEventListener('dbReady', loadDragPositions);
@@ -65,6 +70,36 @@
     isEditMode = false;
     appShell.classList.remove('edit-mode');
     closeAllPopups();
+  }
+
+  // ============ 恢复初始排布 ============
+  if (resetLayoutBtn) {
+    resetLayoutBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      
+      // 确认对话框
+      var confirmed = confirm('确定要恢复初始排布吗？');
+      if (!confirmed) return;
+      
+      var page = document.querySelector('[data-page="home"]');
+      if (!page) return;
+      
+      // 按初始顺序重新排列
+      defaultOrder.forEach(function(componentName) {
+        var el = page.querySelector('[data-component="' + componentName + '"]');
+        if (el) {
+          page.appendChild(el);
+        }
+      });
+      
+      // 清空保存的顺序
+      if (window.AppDB) {
+        AppDB.delete('drag_order', function() {
+          // 可以加个提示
+          alert('已恢复初始排布！');
+        });
+      }
+    });
   }
 
   // ============ 编辑按钮点击 → 弹出编辑卡片 ============
@@ -159,6 +194,8 @@
       var target = e.target;
       if (target.classList.contains('edit-btn') ||
           target.closest('.edit-btn') ||
+          target.classList.contains('reset-layout-btn') ||
+          target.closest('.reset-layout-btn') ||
           target.contentEditable === 'true' ||
           target.closest('[contenteditable="true"]')) {
         return;
@@ -250,7 +287,7 @@
       order.forEach(function(componentName) {
         var el = page.querySelector('[data-component="' + componentName + '"]');
         if (el) {
-          el.parentElement.appendChild(el);
+          page.appendChild(el);
         }
       });
     });
