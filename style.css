@@ -1,12 +1,26 @@
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif; background:#ffffff; color:#1c1c1e; overflow:hidden; }
+* { 
+  margin:0; 
+  padding:0; 
+  box-sizing:border-box; 
+  -webkit-tap-highlight-color:transparent; 
+  /* ▼▼▼ 禁止长按出现系统选框 ▼▼▼ */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* ▲▲▲ ▲▲▲ */
+}
+html, body { 
+  height:100%; 
+  background:#ffffff; 
+  color:#1c1c1e; 
+  overflow:hidden; 
+}
 
 .app-shell { display:flex; flex-direction:column; height:100%; max-width:430px; margin:0 auto; position:relative; }
 
-/* ▼▼▼ 页面容器改成固定布局，不允许滚动 ▼▼▼ */
 .page-container { 
   flex:1; 
-  overflow:hidden; /* 禁止滚动 */
+  overflow:hidden;
   padding:16px 16px 0; 
   display: flex;
   flex-direction: column;
@@ -15,21 +29,19 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   display:none; 
   flex-direction:column; 
   gap:16px; 
-  height: 100%; /* 固定高度 */
-  overflow: hidden; /* 禁止内部滚动 */
+  height: 100%;
+  overflow: hidden;
 }
 .page.active { display:flex; }
 
 /* ========== 个人卡片 ========== */
 .profile-card {
   width: 100%;
-  aspect-ratio: 16 / 10; /* 恢复原来的比例 */
+  aspect-ratio: 16 / 14;
   border-radius: 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  border: 1px solid #e5e5ea;
-  flex-shrink: 0; /* 防止被压缩 */
+  flex-shrink: 0;
 }
 
 /* 背景图层，铺满整个卡片 */
@@ -60,15 +72,6 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   cursor: pointer;
 }
 
-/* 分割线 */
-.card-divider {
-  position: relative;
-  z-index: 2;
-  height: 1px;
-  background: rgba(255,255,255,0.4);
-  box-shadow: 0 0.5px 1px rgba(0,0,0,0.1);
-}
-
 /* 下半部分 */
 .card-lower {
   position: relative;
@@ -92,13 +95,13 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* 头像 - 骑在分割线正中间 */
+/* ▼▼▼ 头像 - 骑在分割线正中间，完全遮住分割线 ▼▼▼ */
 .avatar-wrapper {
   width: 72px;
   height: 72px;
   border-radius: 50%;
   background: #fdfdfd;
-  border: 3px solid #fff;
+  border: 2px solid #fff; /* 加厚边框确保完全遮住分割线 */
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -107,7 +110,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   top: 0;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10;
+  z-index: 20; /* 提高层级，确保在分割线之上 */
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   cursor: pointer;
 }
@@ -124,10 +127,12 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  margin-top: 42px; /* 头像半径 + 间距 */
+  margin-top: 44px;
   padding: 0 20px;
   width: 100%;
 }
+
+/* ▼▼▼ 可编辑文字需要允许选择 ▼▼▼ */
 .info-text {
   width: 100%;
   text-align: center;
@@ -140,6 +145,8 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  -webkit-user-select: text;
+  user-select: text;
 }
 .info-text:focus { background: rgba(0, 122, 255, 0.08); }
 .info-text:empty::before {
@@ -158,6 +165,8 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   gap: 4px;
   margin-top: 2px;
   color: #6c6c70;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .info-text.line-4:empty::before { content: none; }
 .location-icon {
@@ -165,6 +174,8 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 }
 .location-text {
   outline: none;
+  -webkit-user-select: text;
+  user-select: text;
 }
 .location-text:empty::before { content: '所在地'; color: #c7c7cc; font-weight: 400; }
 
@@ -247,7 +258,7 @@ input:checked + label:before { transform: translateX(20px); }
   grid-template-columns:repeat(3, 1fr); 
   gap:10px; 
   padding:0;
-  flex-shrink: 0; /* 防止被压缩 */
+  flex-shrink: 0;
 }
 
 .photo-frame { aspect-ratio:1; border-radius:12px; background:#f2f2f7; border:1px solid #e5e5ea; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; }
@@ -262,9 +273,9 @@ input:checked + label:before { transform: translateX(20px); }
   grid-template-columns:repeat(4, 1fr); 
   gap:16px 12px; 
   padding:16px 0 0;
-  flex-shrink: 0; /* 防止被压缩 */
+  flex-shrink: 0;
 }
-.app-icon { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; -webkit-user-select:none; user-select:none; }
+.app-icon { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
 .app-icon:active .icon-box { transform:scale(.88); }
 .app-icon .icon-box { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#f2f2f7; border:1px solid #e5e5ea; transition:transform .15s ease; }
 .app-icon .icon-box svg { width:26px; height:26px; stroke:#1c1c1e; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
@@ -272,7 +283,7 @@ input:checked + label:before { transform: translateX(20px); }
 
 /* ========== 底部 TabBar ========== */
 .tab-bar { display:flex; align-items:flex-end; justify-content:space-around; padding:8px 0 env(safe-area-inset-bottom, 8px); height:83px; background:rgba(255,255,255,.92); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:0.5px solid rgba(60,60,67,.18); position:relative; z-index:100; }
-.tab-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 12px; -webkit-user-select:none; user-select:none; }
+.tab-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 12px; }
 .tab-item:active { opacity:.5; }
 .tab-icon { height:28px; display:flex; align-items:center; justify-content:center; }
 .tab-icon svg { width:24px; height:24px; stroke:#8e8e93; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; transition:stroke .15s ease; }
