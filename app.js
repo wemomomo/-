@@ -129,12 +129,31 @@
     tabs.forEach(function(t) { t.classList.toggle('active', t === tab); });
   }
 
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      setActiveTab(this);
-      showPage(this.dataset.tab);
-    });
+tabs.forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    // 弹出开发中提示
+    showToast('开发中');
   });
+});
+
+// Toast 提示函数
+function showToast(message) {
+  var toast = document.createElement('div');
+  toast.className = 'toast-message';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(function() {
+    toast.classList.add('show');
+  }, 10);
+  
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() {
+      document.body.removeChild(toast);
+    }, 300);
+  }, 1500);
+}
 
   // ============ 图标拖拽功能 ============
   function initIconDrag() {
