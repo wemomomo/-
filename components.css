@@ -215,3 +215,267 @@
   color: #8e8e93;
   font-weight: 600;
 }
+
+/* ========== 编辑面板 ========== */
+.edit-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 24px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 200;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.edit-panel.show { transform: translateY(0); }
+
+.edit-panel-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: #d1d1d6;
+  margin: 0 auto 16px;
+}
+
+.edit-panel-content { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 14px; 
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+  color: #1c1c1e;
+}
+
+.control-group {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  border: 1px solid #007aff;
+  background: white;
+  color: #007aff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.action-btn:active {
+  opacity: 0.7;
+}
+.action-btn.danger {
+  border-color: #ff3b30;
+  color: #ff3b30;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-label { 
+  font-size: 14px; 
+  font-weight: 500; 
+  color: #3c3c43; 
+  min-width: 70px; 
+}
+
+.control-row input[type="color"] { 
+  width: 36px; 
+  height: 28px; 
+  border: 1px solid #e5e5ea; 
+  border-radius: 6px; 
+  background: none; 
+  cursor: pointer; 
+  padding: 2px; 
+}
+
+.control-row input[type="range"] { 
+  flex: 1; 
+  -webkit-appearance: none; 
+  appearance: none; 
+  height: 5px; 
+  background: #e5e5ea; 
+  border-radius: 99px; 
+  outline: none; 
+}
+
+.control-row input[type="range"]::-webkit-slider-thumb { 
+  -webkit-appearance: none; 
+  appearance: none; 
+  width: 20px; 
+  height: 20px; 
+  background: #fff; 
+  border-radius: 50%; 
+  border: 1px solid #d1d1d6; 
+  box-shadow: 0 1px 4px rgba(0,0,0,.15); 
+  cursor: pointer; 
+}
+
+.opacity-value { 
+  font-size: 13px; 
+  color: #8e8e93; 
+  min-width: 48px; 
+  text-align: right; 
+}
+
+.toggle-switch { 
+  position: relative; 
+  width: 44px; 
+  height: 24px; 
+}
+
+.toggle-switch input { 
+  opacity: 0; 
+  width: 0; 
+  height: 0; 
+}
+
+.toggle-switch label { 
+  position: absolute; 
+  cursor: pointer; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0; 
+  background-color: #e5e5ea; 
+  transition: .3s; 
+  border-radius: 24px; 
+}
+
+.toggle-switch label:before { 
+  position: absolute; 
+  content: ""; 
+  height: 20px; 
+  width: 20px; 
+  left: 2px; 
+  bottom: 2px; 
+  background-color: white; 
+  transition: .3s; 
+  border-radius: 50%; 
+  box-shadow: 0 1px 3px rgba(0,0,0,.15); 
+}
+
+input:checked + label { 
+  background-color: #34c759; 
+}
+
+input:checked + label:before { 
+  transform: translateX(20px); 
+}
+
+.done-btn {
+  width: 100%;
+  border: none;
+  background: #007aff;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 6px;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.done-btn:active {
+  opacity: 0.8;
+}
+
+.edit-panel-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 199;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.edit-panel-mask.show { 
+  opacity: 1; 
+  pointer-events: auto; 
+}
+
+/* ========== 裁剪弹窗 ========== */
+.crop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.crop-overlay.show { display: flex; }
+
+.crop-container {
+  width: 100%;
+  max-width: 430px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+.crop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0));
+  background: rgba(0,0,0,0.8);
+  color: white;
+}
+
+.crop-cancel, .crop-confirm {
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  font-family: inherit;
+}
+.crop-cancel:active, .crop-confirm:active {
+  opacity: 0.7;
+}
+
+.crop-header span {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.crop-workspace {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.crop-workspace img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
