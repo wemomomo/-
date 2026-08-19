@@ -33,90 +33,101 @@
     <span>恢复初始</span>
   </button>
 
-  <div class="page active" data-page="home">
+<div class="page active" data-page="home">
+  
+  <!-- ▼▼▼ 个人卡片 ▼▼▼ -->
+  <div class="profile-card draggable" id="profileCard" data-component="card">
+    
+    <!-- 卡片上半部分，背景图区域 -->
+    <div class="card-header" id="cardHeader">
+      <div class="edit-prompt">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        <span>长按卡片进入编辑</span>
+      </div>
+    </div>
 
-    <div class="page active" data-page="home">
-      
-      <!-- 个人卡片 -->
-      <div class="profile-card draggable" id="profileCard" data-component="card">
-        <button class="edit-btn" data-edit-target="card">编辑</button>
-        
-        <div class="card-bg" id="cardBg"></div>
-        <div class="card-upper" id="cardUpper"></div>
-        <div class="card-lower" id="cardLower">
-          <div class="lower-overlay" id="lowerOverlay"></div>
-          
-          <div class="avatar-wrapper" id="avatarBtn">
-            <img id="avatarImg" alt="头像">
-            <svg class="avatar-placeholder" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-          </div>
+    <!-- 卡片下半部分，信息区域 -->
+    <div class="card-body" id="cardBody">
+      <div class="info-text line-1" contenteditable="false" data-key="line1" data-placeholder="姓名"></div>
+      <div class="info-text line-2" contenteditable="false" data-key="line2" data-placeholder="身份/称号"></div>
+      <div class="info-text line-3" contenteditable="false" data-key="line3" data-placeholder="签名/心情"></div>
+      <div class="info-text line-4" contenteditable="false" data-key="line4" data-placeholder="当前位置">
+        <svg class="location-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="location-text"></span>
+      </div>
+    </div>
 
-          <div class="info-area">
-            <div class="info-text line-1" contenteditable="true" data-key="line1" data-placeholder="姓名"></div>
-            <div class="info-text line-2" contenteditable="true" data-key="line2" data-placeholder="身份/称号"></div>
-            <div class="info-text line-3" contenteditable="true" data-key="line3" data-placeholder="签名/心情"></div>
-            <div class="info-text line-4" data-key="line4" data-placeholder="所在地">
-              <svg class="location-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span class="location-text" contenteditable="true" data-key="line4text"></span>
+    <!-- 中间的圆形头像 -->
+    <div class="avatar-wrapper" id="avatarBtn">
+      <img id="avatarImg" alt="头像">
+      <svg class="avatar-placeholder" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+    </div>
+
+    <!-- 编辑模式下的控件 -->
+    <div class="edit-controls" id="editControls">
+        <div class="control-group">
+            <label>背景模糊</label>
+            <div class="toggle-switch">
+                <input type="checkbox" id="glassToggle">
+                <label for="glassToggle"></label>
             </div>
-          </div>
         </div>
+        <div class="control-group">
+            <label>背景颜色</label>
+            <input type="color" id="colorPicker" value="#f0f0f0">
+        </div>
+        <div class="control-group range-group">
+            <label>透明度</label>
+            <input type="range" id="opacitySlider" min="0" max="1" step="0.05" value="0.5">
+        </div>
+        <button id="doneEditBtn">完成</button>
+    </div>
+
+    <!-- 编辑按钮 -->
+    <button class="edit-btn" data-edit-target="card">编辑</button>
+
+  </div>
+
+  <!-- ▼▼▼ 消息框（如果你有的话，没有就删掉这段） ▼▼▼ -->
+  <!-- <div class="message-card draggable" id="messageCard" data-component="message">
+    消息框内容
+  </div> -->
+
+  <!-- ▼▼▼ 图标容器 ▼▼▼ -->
+  <div class="icons-wrapper">
+    <div class="app-icon draggable" data-action="plot" data-component="icon-plot" data-icon="plot">
+      <div class="icon-box">
+        <div class="icon-image" data-icon="plot"></div>
+        <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 6V4"/><path d="M16 6V4"/><path d="M12 6V3"/></svg>
       </div>
+      <div class="icon-label">剧情</div>
+    </div>
 
-      <!-- 消息卡片 -->
-      <div class="message-card draggable" id="messageCard" data-component="message">
-        <button class="edit-btn" data-edit-target="message">编辑</button>
-        
-        <div class="message-avatar">
-          <img alt="角色头像">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-        </div>
-        <div class="message-content">
-          <div class="message-preview">暂无消息</div>
-        </div>
-        <div class="message-badge">
-          <svg class="badge-icon" viewBox="0 0 20 22">
-            <path d="M4 2 L16 2 Q18 2 18 4 L18 12 Q18 14 16 14 L11 14 L10 17 L9 14 L4 14 Q2 14 2 12 L2 4 Q2 2 4 2 Z" 
-                  stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="6" cy="8" r="1" fill="currentColor"/>
-            <circle cx="10" cy="8" r="1" fill="currentColor"/>
-            <circle cx="14" cy="8" r="1" fill="currentColor"/>
-          </svg>
-          <span>new message</span>
-        </div>
+    <div class="app-icon draggable" data-action="message" data-component="icon-message" data-icon="message">
+      <div class="icon-box">
+        <div class="icon-image" data-icon="message"></div>
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       </div>
+      <div class="icon-label">传讯</div>
+    </div>
 
-   <!-- 功能图标（每个都可独立拖拽） -->
-<div class="app-icon draggable" data-action="plot" data-component="icon-plot" data-icon="plot">
-  <div class="icon-box">
-    <div class="icon-image" data-icon="plot"></div>
-    <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 6V4"/><path d="M16 6V4"/><path d="M12 6V3"/></svg>
-  </div>
-  <div class="icon-label">剧情</div>
-</div>
+    <div class="app-icon draggable" data-action="explore" data-component="icon-explore" data-icon="explore">
+      <div class="icon-box">
+        <div class="icon-image" data-icon="explore"></div>
+        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
+      </div>
+      <div class="icon-label">万象</div>
+    </div>
 
-<div class="app-icon draggable" data-action="message" data-component="icon-message" data-icon="message">
-  <div class="icon-box">
-    <div class="icon-image" data-icon="message"></div>
-    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <div class="app-icon draggable" data-action="vault" data-component="icon-vault" data-icon="vault">
+      <div class="icon-box">
+        <div class="icon-image" data-icon="vault"></div>
+        <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 12h18"/><circle cx="12" cy="14" r="1.5"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/></svg>
+      </div>
+      <div class="icon-label">宝阁</div>
+    </div>
   </div>
-  <div class="icon-label">传讯</div>
-</div>
 
-<div class="app-icon draggable" data-action="explore" data-component="icon-explore" data-icon="explore">
-  <div class="icon-box">
-    <div class="icon-image" data-icon="explore"></div>
-    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
-  </div>
-  <div class="icon-label">万象</div>
-</div>
-
-<div class="app-icon draggable" data-action="vault" data-component="icon-vault" data-icon="vault">
-  <div class="icon-box">
-    <div class="icon-image" data-icon="vault"></div>
-    <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M3 12h18"/><circle cx="12" cy="14" r="1.5"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/></svg>
-  </div>
-  <div class="icon-label">宝阁</div>
 </div>
 
     <div class="page" data-page="plot"><div class="page-title">剧情</div><div class="placeholder-card">剧情模块开发中</div></div>
