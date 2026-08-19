@@ -67,7 +67,7 @@
   var cropper = null;
   var cropCallback = null;
 
-  function openCropper(imageDataUrl, options, callback) {
+    function openCropper(imageDataUrl, options, callback) {
     cropCallback = callback;
     var cropAspect = (options && options.aspectRatio) || NaN;
     cropImage.src = imageDataUrl;
@@ -77,15 +77,12 @@
       if (cropper) cropper.destroy();
       cropper = new Cropper(cropImage, {
         aspectRatio: cropAspect,
-        viewMode: 0,
-        responsive: true,
-        background: true,
-        autoCropArea: 1,
-        movable: true,
-        zoomable: true,
-        scalable: true,
-        minCropBoxWidth: 50,
-        minCropBoxHeight: 50
+        viewMode: 1,           // 限制裁剪框不能跑出图片外面
+        autoCropArea: 1,       // 初始直接把裁剪框拉到最大（按比例最大化）
+        movable: false,        // 【关键】禁止图片乱动，图片死死锁住
+        zoomable: false,       // 【关键】禁止图片缩放
+        scalable: false,       // 禁止乱翻转
+        background: true
       });
     }, 100);
   }
