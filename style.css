@@ -102,5 +102,56 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   transform: translate(-50%, -50%) scale(1);
 }
 
+/* ========== 照片操作卡片 ========== */
+.photo-action-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  min-width: 200px;
+}
+.photo-action-card.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.photo-action-card button {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1c1c1e;
+  cursor: pointer;
+  font-family: inherit;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.photo-action-card button:last-child {
+  border-bottom: none;
+}
+.photo-action-card button:active {
+  background: rgba(0,0,0,0.05);
+}
+.photo-action-mask {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 99998;
+  display: none;
+}
+.photo-action-mask.show {
+  display: block;
+}
 
 
