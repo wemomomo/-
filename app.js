@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -81,14 +82,16 @@
       }
       cropper = new Cropper(cropImage, {
         aspectRatio: cropAspect,
-        viewMode: 1,
+        viewMode: 0,
         responsive: true,
-        background: false,
-        autoCropArea: 0.9,
+        background: true,
+        autoCropArea: 1,
         movable: true,
         zoomable: true,
-        scalable: false,
-        rotatable: true
+        scalable: true,
+        rotatable: true,
+        minCropBoxWidth: 50,
+        minCropBoxHeight: 50
       });
     }, 100);
   }
@@ -145,6 +148,10 @@
   var actionMap = { plot:'plot', message:'message', explore:'explore', vault:'vault' };
   icons.forEach(function(icon) {
     icon.addEventListener('click', function() {
+      // 只有在非编辑模式下才跳转页面
+      if (document.querySelector('.app-shell').classList.contains('edit-mode')) {
+        return;
+      }
       var action = this.dataset.action;
       if (actionMap[action]) {
         tabs.forEach(function(t) { t.classList.remove('active'); });
@@ -153,10 +160,61 @@
     });
   });
 
+  // ============ 图标上传功能 ============
+  function setupAppIcons() {
+    var appIcons = document.querySelectorAll('.app-icon[data-icon]');
+    
+    appIcons.forEach(function(icon) {
+      var iconName = icon.dataset.icon;
+      var iconImage = icon.querySelector('.icon-image[data-icon="' + iconName + '"]');
+      
+      // 创建文件输入
+      var fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      
+      // 点击图标上传（仅编辑模式）
+      icon.addEventListener('click', function(e) {
+        if (!document.querySelector('.app-shell').classList.contains('edit-mode')) {
+          return;
+        }
+        if (icon.classList.contains('dragging')) {
+          return;
+        }
+        e.stopPropagation();
+        fileInput.click();
+      });
+      
+      // 上传后裁剪
+      fileInput.addEventListener('change', function() {
+        var file = this.files[0];
+        if (!file) return;
+        
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          openCropper(e.target.result, { aspectRatio: 1 }, function(croppedData) {
+            iconImage.style.backgroundImage = 'url(' + croppedData + ')';
+            iconImage.classList.add('has-image');
+            dbSave('icon_' + iconName, croppedData);
+          });
+        };
+        reader.readAsDataURL(file);
+        this.value = '';
+      });
+      
+      // 加载已保存的图标
+      dbGet('icon_' + iconName, function(data) {
+        if (data) {
+          iconImage.style.backgroundImage = 'url(' + data + ')';
+          iconImage.classList.add('has-image');
+        }
+      });
+    });
+  }
+
   // ============ 初始化 ============
-  // 打开数据库后，触发各模块加载
   openDB(function() {
-    // 派发一个自定义事件，告诉其他模块数据库准备好了
+    setupAppIcons();
     window.dispatchEvent(new CustomEvent('dbReady'));
   });
 
