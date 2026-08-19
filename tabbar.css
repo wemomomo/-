@@ -1,14 +1,15 @@
+
 /* ========== 底部栏 ========== */
 .tab-bar {
   position: fixed;
-  /* ▼▼▼ 用 calc 计算底部距离 ▼▼▼ */
-  bottom: calc(5px + env(safe-area-inset-bottom, 0px));
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: transparent;
   z-index: 100;
   pointer-events: none;
@@ -16,11 +17,9 @@
   width: calc(100% - 32px);
 }
 
-/* PWA 端（添加到桌面后）专属调整 */
 @media (display-mode: standalone) {
   .tab-bar {
-    /* 在 PWA 里去掉苹果强制的安全区高度，直接写固定距离 */
-    bottom: 12px; 
+    bottom: 0;
   }
 }
 
@@ -74,14 +73,3 @@
 }
 .tab-item.active .tab-icon svg { stroke: #1c1c1e; }
 .tab-item.active .tab-label { color: #1c1c1e; }
-
-/* 底部栏编辑按钮定位 */
-.tabbar-edit-btn {
-  position: absolute;
-  top: -50px;
-  right: 0;
-  pointer-events: auto;
-}
-
-
-
