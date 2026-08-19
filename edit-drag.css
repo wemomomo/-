@@ -1,3 +1,4 @@
+
 /* ========== 编辑按钮（统一样式） ========== */
 .edit-btn {
   position: absolute;
@@ -28,7 +29,7 @@
   opacity: 0.8;
 }
 
-/* 底部栏编辑按钮（fixed独立定位，不受tab-bar影响） */
+/* 底部栏编辑按钮（fixed独立定位） */
 .tabbar-edit-btn {
   position: fixed;
   top: auto;
@@ -53,7 +54,7 @@
 .reset-layout-btn {
   position: fixed;
   top: calc(8px + env(safe-area-inset-top, 0px));
-  right: 16px;
+  left: 16px;
   display: flex;
   align-items: center;
   gap: 6px;
