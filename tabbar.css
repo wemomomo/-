@@ -66,3 +66,14 @@
 }
 .tab-item.active .tab-icon svg { stroke: #1c1c1e; }
 .tab-item.active .tab-label { color: #1c1c1e; }
+
+/* 底部栏编辑按钮定位 */
+.tabbar-edit-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  pointer-events: auto;
+}
+
+
+
