@@ -42,7 +42,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: none;
@@ -52,6 +52,8 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  width: auto;
+  max-width: fit-content;
 }
 
 .reset-layout-btn svg {
@@ -62,6 +64,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  flex-shrink: 0;
 }
 
 .app-shell.edit-mode .reset-layout-btn {
