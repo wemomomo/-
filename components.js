@@ -32,7 +32,7 @@
         function() {
           cardBg.style.backgroundImage = '';
           cardBg.classList.remove('has-bg');
-          if (window.AppDB) AppDB.delete('card_bg');
+          AppDB.delete('card_bg');
           saveCardState();
         }
       );
@@ -47,7 +47,7 @@
         function() {
           avatarImg.src = '';
           avatarBtn.classList.remove('has-img');
-          if (window.AppDB) AppDB.delete('card_avatar');
+          AppDB.delete('card_avatar');
           saveCardState();
         }
       );
@@ -59,14 +59,12 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        if (window.AppCropper) {
-          AppCropper.open(e.target.result, { aspectRatio: 16/11 }, function(croppedData) {
-            cardBg.style.backgroundImage = 'url(' + croppedData + ')';
-            cardBg.classList.add('has-bg');
-            if (window.AppDB) AppDB.save('card_bg', croppedData);
-            saveCardState();
-          });
-        }
+        AppCropper.open(e.target.result, { aspectRatio: 16/11 }, function(croppedData) {
+          cardBg.style.backgroundImage = 'url(' + croppedData + ')';
+          cardBg.classList.add('has-bg');
+          AppDB.save('card_bg', croppedData);
+          saveCardState();
+        });
       };
       reader.readAsDataURL(file);
       this.value = '';
@@ -78,14 +76,12 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        if (window.AppCropper) {
-          AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
-            avatarImg.src = croppedData;
-            avatarBtn.classList.add('has-img');
-            if (window.AppDB) AppDB.save('card_avatar', croppedData);
-            saveCardState();
-          });
-        }
+        AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
+          avatarImg.src = croppedData;
+          avatarBtn.classList.add('has-img');
+          AppDB.save('card_avatar', croppedData);
+          saveCardState();
+        });
       };
       reader.readAsDataURL(file);
       this.value = '';
@@ -164,7 +160,6 @@
     }
 
     function loadStyleToControls() {
-      if (!window.AppDB) return;
       AppDB.get('card_state', function(state) {
         if (!state || !state.style) return;
         var glassToggle = document.getElementById('cardGlassToggle');
@@ -175,6 +170,7 @@
         if (colorPicker) colorPicker.value = state.style.color;
         if (opacitySlider) opacitySlider.value = state.style.opacity;
         if (opacityValue) opacityValue.textContent = state.style.opacity + '%';
+        applyCardOverlay();
       });
     }
 
@@ -186,14 +182,13 @@
       if (!colorPicker || !opacitySlider || !glassToggle) return;
       var color = colorPicker.value;
       var opacity = opacitySlider.value / 100;
-      opacityValue.textContent = opacitySlider.value + '%';
+      if (opacityValue) opacityValue.textContent = opacitySlider.value + '%';
       var r = parseInt(color.slice(1,3), 16);
       var g = parseInt(color.slice(3,5), 16);
       var b = parseInt(color.slice(5,7), 16);
       lowerOverlay.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
       if (glassToggle.checked) lowerOverlay.classList.add('glass-effect');
       else lowerOverlay.classList.remove('glass-effect');
-      saveCardState();
     }
 
     function saveCardState() {
@@ -215,11 +210,10 @@
         if (key !== 'line4') state.texts[key] = el.textContent.trim();
       });
       state.texts['line4text'] = locationText ? locationText.textContent.trim() : '';
-      if (window.AppDB) AppDB.save('card_state', state);
+      AppDB.save('card_state', state);
     }
 
     function loadCardState() {
-      if (!window.AppDB) return;
       AppDB.get('card_bg', function(bgData) {
         if (bgData) {
           cardBg.style.backgroundImage = 'url(' + bgData + ')';
@@ -268,7 +262,7 @@
           function() {
             messageAvatarImg.src = '';
             messageAvatar.classList.remove('has-img');
-            if (window.AppDB) AppDB.delete('message_avatar');
+            AppDB.delete('message_avatar');
           }
         );
       });
@@ -279,33 +273,29 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        if (window.AppCropper) {
-          AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
-            messageAvatarImg.src = croppedData;
-            messageAvatar.classList.add('has-img');
-            if (window.AppDB) AppDB.save('message_avatar', croppedData);
-          });
-        }
+        AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
+          messageAvatarImg.src = croppedData;
+          messageAvatar.classList.add('has-img');
+          AppDB.save('message_avatar', croppedData);
+        });
       };
       reader.readAsDataURL(file);
       this.value = '';
     });
 
-    if (window.AppDB) {
-      AppDB.get('message_avatar', function(data) {
-        if (data && messageAvatarImg) {
-          messageAvatarImg.src = data;
-          messageAvatar.classList.add('has-img');
-        }
-      });
-      AppDB.get('message_preview', function(text) {
-        if (text && messagePreview) messagePreview.textContent = text;
-      });
-    }
+    AppDB.get('message_avatar', function(data) {
+      if (data && messageAvatarImg) {
+        messageAvatarImg.src = data;
+        messageAvatar.classList.add('has-img');
+      }
+    });
+    AppDB.get('message_preview', function(text) {
+      if (text && messagePreview) messagePreview.textContent = text;
+    });
 
     if (messagePreview) {
       messagePreview.addEventListener('blur', function() {
-        if (window.AppDB) AppDB.save('message_preview', this.textContent.trim());
+        AppDB.save('message_preview', this.textContent.trim());
       });
     }
   }
