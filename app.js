@@ -34,6 +34,7 @@
   avatarFileInput.accept = 'image/*';
 
   var longPressTimer;
+  var startX, startY;
 
   // ============ 初始化 ============
   loadState();
@@ -103,19 +104,32 @@
     locationText.addEventListener('blur', saveState);
   }
 
-  // ▼▼▼ 长按空白处弹出编辑面板（优化版） ▼▼▼
-  var startX, startY;
+  // ▼▼▼ 长按空白处弹出编辑面板（彻底优化版） ▼▼▼
+  
+  // 阻止整个页面容器的上下文菜单和选择行为
+  pageContainer.addEventListener('contextmenu', function(e){
+    // 如果点击的不是可编辑文本，阻止右键菜单
+    if(!isEditableElement(e.target)){
+      e.preventDefault();
+    }
+  });
+
   pageContainer.addEventListener('touchstart', function(e){
-    // 只响应点击在 pageContainer 自身 或 page 自身（空白处）
+    // 只响应点击在空白处（pageContainer 或 page 本身）
     if(e.target === pageContainer || e.target.classList.contains('page')){
-      e.preventDefault(); // 阻止系统菜单
+      // 立即阻止默认行为，防止触发文本选择
+      e.preventDefault();
+      
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
+      
       longPressTimer = setTimeout(function(){
+        // 长按成功，清除任何可能的文本选择
+        clearTextSelection();
         openEditPanel();
       }, 700);
     }
-  }, {passive: false});
+  }, {passive: false}); // passive: false 确保 preventDefault 生效
 
   pageContainer.addEventListener('touchend', function(){ 
     clearTimeout(longPressTimer); 
@@ -161,6 +175,26 @@
     editPanel.classList.remove('show');
     editPanelMask.classList.remove('show');
     saveState();
+  }
+
+  // 清除文本选择
+  function clearTextSelection(){
+    if(window.getSelection){
+      var selection = window.getSelection();
+      if(selection.removeAllRanges){
+        selection.removeAllRanges();
+      }
+    }
+  }
+
+  // 判断是否为可编辑元素
+  function isEditableElement(el){
+    if(!el) return false;
+    var editable = el.contentEditable === 'true' || 
+                   el.isContentEditable || 
+                   el.tagName === 'INPUT' || 
+                   el.tagName === 'TEXTAREA';
+    return editable;
   }
 
   function applyCardStyle(){
