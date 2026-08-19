@@ -103,19 +103,38 @@
     locationText.addEventListener('blur', saveState);
   }
 
-  // ============ 长按空白处弹出编辑面板 ============
-  pageContainer.addEventListener('pointerdown', function(e){
+  // ▼▼▼ 长按空白处弹出编辑面板（优化版） ▼▼▼
+  var startX, startY;
+  pageContainer.addEventListener('touchstart', function(e){
     // 只响应点击在 pageContainer 自身 或 page 自身（空白处）
     if(e.target === pageContainer || e.target.classList.contains('page')){
-      e.preventDefault();
+      e.preventDefault(); // 阻止系统菜单
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
       longPressTimer = setTimeout(function(){
         openEditPanel();
       }, 700);
     }
+  }, {passive: false});
+
+  pageContainer.addEventListener('touchend', function(){ 
+    clearTimeout(longPressTimer); 
   });
-  pageContainer.addEventListener('pointerup', function(){ clearTimeout(longPressTimer); });
-  pageContainer.addEventListener('pointerleave', function(){ clearTimeout(longPressTimer); });
-  pageContainer.addEventListener('pointermove', function(){ clearTimeout(longPressTimer); });
+  
+  pageContainer.addEventListener('touchcancel', function(){ 
+    clearTimeout(longPressTimer); 
+  });
+  
+  pageContainer.addEventListener('touchmove', function(e){ 
+    // 如果手指移动超过10px，取消长按
+    if(startX && startY){
+      var dx = Math.abs(e.touches[0].clientX - startX);
+      var dy = Math.abs(e.touches[0].clientY - startY);
+      if(dx > 10 || dy > 10){
+        clearTimeout(longPressTimer);
+      }
+    }
+  });
 
   // 编辑面板操作
   glassToggle.addEventListener('change', applyCardStyle);
