@@ -13,7 +13,7 @@
 }
 
 .app-icon-item.is-grabbed {
-  z-index: 999;
+  z-index: 1;
   cursor: grabbing;
 }
 
@@ -57,7 +57,7 @@
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
 .icon-image.has-image {
@@ -73,7 +73,7 @@
   stroke-linecap: round; 
   stroke-linejoin: round;
   position: relative;
-  z-index: 0;
+  z-index: 1;
 }
 
 .app-icon-custom-img {
