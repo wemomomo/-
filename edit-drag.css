@@ -1,9 +1,10 @@
+
 /* ========== 编辑按钮 ========== */
 .edit-btn {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(0, 122, 255, 0.95);
+  background: rgba(0, 0, 0, 0.85);
   color: white;
   border: none;
   border-radius: 8px;
@@ -13,44 +14,39 @@
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: all 0.25s ease;
   z-index: 30;
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-
-.app-shell.edit-mode .edit-btn {
+.edit-mode .edit-btn {
   opacity: 1;
   pointer-events: auto;
 }
 .edit-btn:active {
-  opacity: 0.7;
+  transform: scale(0.95);
+  background: #1c1c1e;
 }
 
+/* 底部栏的编辑按钮 */
 .tabbar-edit-btn {
-  position: fixed;
   top: auto;
-  bottom: calc(95px + env(safe-area-inset-bottom, 0px));
+  bottom: 95px;
   right: 16px;
   border-radius: 20px;
   padding: 8px 14px;
 }
 
-/* 编辑模式下组件的视觉提示 - 不要虚线 */
-.app-shell.edit-mode .draggable {
-  /* 干净清爽，不要提示 */
-}
-
-/* 拖拽状态 */
+/* 拖拽状态（没有任何虚线或边框，只有半透明和阴影浮起效果） */
 .draggable {
-  position: relative;
+  transition: transform 0.2s ease;
 }
-.app-shell.edit-mode .draggable {
-  touch-action: none;
+.edit-mode .draggable {
+  cursor: move;
 }
 .dragging {
-  opacity: 0.8;
+  opacity: 0.85;
   z-index: 1000;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* ========== 恢复初始排布按钮 ========== */
