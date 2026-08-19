@@ -1,4 +1,3 @@
-
 (function(){
   'use strict';
 
@@ -28,7 +27,6 @@
   // ============ 长按空白处进入编辑模式 ============
   pageContainer.addEventListener('touchstart', function(e) {
     var target = e.target;
-    // 只在空白处触发
     if (target === pageContainer || target.classList.contains('page')) {
       e.preventDefault();
       touchStartX = e.touches[0].clientX;
@@ -86,10 +84,8 @@
           popupId = 'tabbarEditPopup';
           break;
         case 'message':
-          // 以后扩展
           break;
         case 'icon':
-          // 以后扩展
           break;
       }
 
@@ -105,21 +101,17 @@
     var popup = document.getElementById(popupId);
     if (!popup) return;
 
-    // 先显示弹窗（为了获取尺寸）
     popup.classList.add('show');
     editOverlay.classList.add('show');
 
-    // 获取触发按钮位置
     var btnRect = triggerBtn.getBoundingClientRect();
     var popupRect = popup.getBoundingClientRect();
     var windowW = window.innerWidth;
     var windowH = window.innerHeight;
 
-    // 计算弹窗位置（优先在组件下方显示）
     var left = btnRect.left + btnRect.width / 2 - popupRect.width / 2;
     var top = btnRect.bottom + 12;
 
-    // 如果下方空间不够，则放在上方
     if (top + popupRect.height > windowH - 100) {
       top = btnRect.top - popupRect.height - 12;
       popup.classList.remove('position-bottom');
@@ -129,7 +121,6 @@
       popup.classList.add('position-bottom');
     }
 
-    // 左右边界检测
     if (left < 16) left = 16;
     if (left + popupRect.width > windowW - 16) {
       left = windowW - popupRect.width - 16;
@@ -149,12 +140,10 @@
     editOverlay.classList.remove('show');
   }
 
-  // 点击遮罩关闭弹窗
   editOverlay.addEventListener('click', function() {
     closeAllPopups();
   });
 
-  // 完成按钮关闭弹窗
   var doneBtns = document.querySelectorAll('.popup-done-btn');
   doneBtns.forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -167,7 +156,6 @@
     el.addEventListener('touchstart', function(e) {
       if (!isEditMode) return;
 
-      // 如果点的是编辑按钮或输入框，不拖拽
       var target = e.target;
       if (target.classList.contains('edit-btn') ||
           target.closest('.edit-btn') ||
@@ -205,42 +193,39 @@
     if (!dragElement) return;
 
     dragElement.classList.remove('dragging');
-    dragElement.style.transform = '';
 
-    // 获取所有可拖拽元素的中心位置
-    var page = document.querySelector('.page.active');
-    var allDraggables = Array.from(page.querySelectorAll('.draggable'));
-
-    // 当前拖拽元素的目标位置
     var dragRect = dragElement.getBoundingClientRect();
     var dragCenterY = dragRect.top + dragRect.height / 2;
 
-    // 找到应该插入的位置
+    var parent = dragElement.parentElement;
+    var allItems = Array.from(parent.querySelectorAll('.draggable'));
+    
     var insertBefore = null;
-    for (var i = 0; i < allDraggables.length; i++) {
-      var item = allDraggables[i];
+    for (var i = 0; i < allItems.length; i++) {
+      var item = allItems[i];
       if (item === dragElement) continue;
       
       var itemRect = item.getBoundingClientRect();
       var itemCenterY = itemRect.top + itemRect.height / 2;
-
+      
       if (dragCenterY < itemCenterY) {
         insertBefore = item;
         break;
       }
     }
 
-    // 移动DOM
-    var parent = dragElement.parentElement;
+    dragElement.style.transform = '';
+
     if (insertBefore) {
       parent.insertBefore(dragElement, insertBefore);
     } else {
       parent.appendChild(dragElement);
     }
 
-    // 保存顺序
     saveDragPositions();
     dragElement = null;
+    dragCurrentX = 0;
+    dragCurrentY = 0;
   });
 
   function saveDragPositions() {
@@ -271,7 +256,6 @@
     });
   }
 
-  // 暴露方法
   window.EditMode = {
     enter: enterEditMode,
     exit: exitEditMode,
