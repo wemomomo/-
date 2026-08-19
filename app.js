@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -45,11 +46,6 @@
       overlay.className = 'crop-overlay';
 
       var lockedRatio = (options && options.aspectRatio) || 0;
-      var defaultRatioLabel = 'free';
-      if (lockedRatio === 1) defaultRatioLabel = '1';
-      else if (Math.abs(lockedRatio - 16/11) < 0.01) defaultRatioLabel = '16:11';
-      else if (Math.abs(lockedRatio - 4/3) < 0.01) defaultRatioLabel = '4:3';
-      else if (Math.abs(lockedRatio - 16/9) < 0.01) defaultRatioLabel = '16:9';
 
       overlay.innerHTML =
         '<div class="crop-container">' +
@@ -59,19 +55,15 @@
             '<button class="crop-confirm" type="button">确定</button>' +
           '</div>' +
           '<div class="crop-toolbar">' +
-            '<button class="crop-ratio-btn' + (defaultRatioLabel === 'free' ? ' active' : '') + '" data-ratio="free" type="button">自由</button>' +
-            '<button class="crop-ratio-btn' + (defaultRatioLabel === '1' ? ' active' : '') + '" data-ratio="1" type="button">1:1</button>' +
-            '<button class="crop-ratio-btn' + (defaultRatioLabel === '4:3' ? ' active' : '') + '" data-ratio="4:3" type="button">4:3</button>' +
-            '<button class="crop-ratio-btn' + (defaultRatioLabel === '16:9' ? ' active' : '') + '" data-ratio="16:9" type="button">16:9</button>' +
+            '<button class="crop-ratio-btn active" data-ratio="free" type="button">自由</button>' +
+            '<button class="crop-ratio-btn" data-ratio="1" type="button">1:1</button>' +
+            '<button class="crop-ratio-btn" data-ratio="4:3" type="button">4:3</button>' +
+            '<button class="crop-ratio-btn" data-ratio="16:9" type="button">16:9</button>' +
           '</div>' +
           '<div class="crop-workspace"><canvas id="cropCanvas"></canvas></div>' +
         '</div>';
 
-document.body.appendChild(overlay);
-
-      setTimeout(function() {
-        img.src = src;
-      }, 50);
+      document.body.appendChild(overlay);
 
       var canvas = overlay.querySelector('#cropCanvas');
       var ctx = canvas.getContext('2d');
@@ -81,6 +73,10 @@ document.body.appendChild(overlay);
       var scale = 1, displayW = 0, displayH = 0;
       var dragMode = '', startX = 0, startY = 0, startCrop = {};
       var HANDLE = 20, MIN_SIZE = 30;
+
+      // 防止 iOS 幽灵点击
+      var canInteract = false;
+      setTimeout(function() { canInteract = true; }, 600);
 
       img.onload = function() {
         var workspace = overlay.querySelector('.crop-workspace');
@@ -107,6 +103,8 @@ document.body.appendChild(overlay);
         crop.y = (displayH - crop.h) / 2;
         draw();
       };
+
+      img.src = src;
 
       function clampCrop() {
         crop.w = Math.max(MIN_SIZE, Math.min(displayW, crop.w));
@@ -209,7 +207,6 @@ document.body.appendChild(overlay);
       canvas.addEventListener('mousedown', onStart);
       canvas.addEventListener('touchstart', onStart, { passive: false });
 
-      // 比例按钮
       overlay.querySelectorAll('.crop-ratio-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -231,13 +228,11 @@ document.body.appendChild(overlay);
         });
       });
 
-            var canInteract = false;
-      setTimeout(function() { canInteract = true; }, 600);
-
       overlay.querySelector('.crop-cancel').addEventListener('click', function() {
         if (!canInteract) return;
         overlay.remove();
       });
+
       overlay.querySelector('.crop-confirm').addEventListener('click', function() {
         if (!canInteract) return;
         var output = document.createElement('canvas');
