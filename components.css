@@ -13,13 +13,13 @@
   inset: 0;
   background-size: cover;
   background-position: center;
-  background-color: #e9e9f0;
+  background-color: #fff;
   z-index: 0;
 }
 .card-bg:not(.has-bg)::after {
   content: "点击加载背景";
   position: absolute;
-  top: 25%;
+  top: 15%;
   left: 50%;
   transform: translateX(-50%);
   font-size: 13px;
