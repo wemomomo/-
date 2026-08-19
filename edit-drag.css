@@ -45,12 +45,6 @@
   border-radius: 6px;
 }
 
-/* ▼▼▼ 编辑模式视觉提示 ▼▼▼ */
-.app-shell.edit-mode .draggable {
-  outline: 2px dashed rgba(0, 122, 255, 0.4);
-  outline-offset: 4px;
-}
-
 /* ▼▼▼ 拖拽相关 ▼▼▼ */
 .draggable {
   position: relative;
