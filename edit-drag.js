@@ -2,32 +2,26 @@
   'use strict';
 
   var pageContainer = document.querySelector('.page-container');
-  var editOverlay = document.getElementById('editOverlay');
-  var editBtns = document.querySelectorAll('.edit-btn');
   var appShell = document.querySelector('.app-shell');
   var resetLayoutBtn = document.getElementById('resetLayoutBtn');
 
   var longPressTimer;
   var isEditMode = false;
 
-  // 拖拽变量
   var dragElement = null;
   var dragStartX = 0;
   var dragStartY = 0;
   var dragCurrentX = 0;
   var dragCurrentY = 0;
 
-  // 长按检测变量
   var touchStartX = 0;
   var touchStartY = 0;
 
-  // ▼▼▼ 初始排布顺序（按你 HTML 里的原始顺序写） ▼▼▼
-var defaultOrder = ['card', 'message', 'icons'];
+  var defaultOrder = ['card', 'message', 'icons'];
 
-  // ============ 等待数据库就绪 ============
   window.addEventListener('dbReady', loadDragPositions);
 
-  // ============ 长按空白处进入编辑模式 ============
+  // ============ 长按空白处进入/退出编辑模式 ============
   pageContainer.addEventListener('touchstart', function(e) {
     var target = e.target;
     if (target === pageContainer || target.classList.contains('page')) {
@@ -67,7 +61,6 @@ var defaultOrder = ['card', 'message', 'icons'];
   function exitEditMode() {
     isEditMode = false;
     appShell.classList.remove('edit-mode');
-    closeAllPopups();
   }
 
   // ============ 恢复初始排布 ============
@@ -81,7 +74,6 @@ var defaultOrder = ['card', 'message', 'icons'];
       var page = document.querySelector('[data-page="home"]');
       if (!page) return;
       
-      // 按 HTML 原始顺序恢复所有组件
       defaultOrder.forEach(function(componentName) {
         var el = page.querySelector('[data-component="' + componentName + '"]');
         if (el) {
@@ -89,98 +81,13 @@ var defaultOrder = ['card', 'message', 'icons'];
         }
       });
       
-      // 清空保存的顺序
       if (window.AppDB) {
         AppDB.delete('drag_order', function() {
-          alert('已恢复初始排布！');
+          AppNav.showToast('已恢复初始排布');
         });
       }
     });
   }
-
-  // ============ 编辑按钮点击 → 弹出编辑卡片 ============
-  editBtns.forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      e.preventDefault();
-
-      var target = this.dataset.editTarget;
-      var popupId = null;
-
-      switch(target) {
-        case 'card':
-          popupId = 'cardEditPopup';
-          break;
-        case 'tabbar':
-          popupId = 'tabbarEditPopup';
-          break;
-        case 'message':
-          break;
-        case 'icon':
-          break;
-      }
-
-      if (popupId) {
-        showPopup(popupId, this);
-      }
-    });
-  });
-
-  function showPopup(popupId, triggerBtn) {
-    closeAllPopups();
-
-    var popup = document.getElementById(popupId);
-    if (!popup) return;
-
-    popup.classList.add('show');
-    editOverlay.classList.add('show');
-
-    var btnRect = triggerBtn.getBoundingClientRect();
-    var popupRect = popup.getBoundingClientRect();
-    var windowW = window.innerWidth;
-    var windowH = window.innerHeight;
-
-    var left = btnRect.left + btnRect.width / 2 - popupRect.width / 2;
-    var top = btnRect.bottom + 12;
-
-    if (top + popupRect.height > windowH - 100) {
-      top = btnRect.top - popupRect.height - 12;
-      popup.classList.remove('position-bottom');
-      popup.classList.add('position-top');
-    } else {
-      popup.classList.remove('position-top');
-      popup.classList.add('position-bottom');
-    }
-
-    if (left < 16) left = 16;
-    if (left + popupRect.width > windowW - 16) {
-      left = windowW - popupRect.width - 16;
-    }
-
-    popup.style.left = left + 'px';
-    popup.style.top = top + 'px';
-  }
-
-  function closeAllPopups() {
-    var popups = document.querySelectorAll('.edit-popup');
-    popups.forEach(function(p) {
-      p.classList.remove('show');
-      p.classList.remove('position-top');
-      p.classList.remove('position-bottom');
-    });
-    editOverlay.classList.remove('show');
-  }
-
-  editOverlay.addEventListener('click', function() {
-    closeAllPopups();
-  });
-
-  var doneBtns = document.querySelectorAll('.popup-done-btn');
-  doneBtns.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      closeAllPopups();
-    });
-  });
 
   // ============ 拖拽功能 ============
   var draggables = document.querySelectorAll('.draggable');
@@ -293,8 +200,7 @@ var defaultOrder = ['card', 'message', 'icons'];
 
   window.EditMode = {
     enter: enterEditMode,
-    exit: exitEditMode,
-    closePopups: closeAllPopups
+    exit: exitEditMode
   };
 
 })();
