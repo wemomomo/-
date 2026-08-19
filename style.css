@@ -19,7 +19,8 @@ html, body {
 .page-container { 
   flex: 1; 
   overflow: hidden;
-  padding: 0;  /* ← 改成 0 */
+  padding: 0;
+  padding-top: env(safe-area-inset-top, 0);  /* ← 加这行 */
   display: flex;
   flex-direction: column;
 }
