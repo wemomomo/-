@@ -1,57 +1,11 @@
-
 (function(){
   'use strict';
 
   window.addEventListener('dbReady', init);
 
   function init() {
-    setupPhotoActionCard();
     setupCard();
     setupMessage();
-  }
-
-  // ============ 照片操作卡片（全局复用） ============
-  var photoActionCard = null;
-  var photoActionMask = null;
-  var photoActionOnSelect = null;
-  var photoActionOnDelete = null;
-
-  function setupPhotoActionCard() {
-    photoActionMask = document.createElement('div');
-    photoActionMask.className = 'photo-action-mask';
-    document.body.appendChild(photoActionMask);
-
-    photoActionCard = document.createElement('div');
-    photoActionCard.className = 'photo-action-card';
-    photoActionCard.innerHTML = '<button id="paSelectBtn">选择照片</button>'
-      + '<button id="paDeleteBtn">删除照片</button>';
-    document.body.appendChild(photoActionCard);
-
-    photoActionMask.addEventListener('click', hidePhotoAction);
-
-    document.getElementById('paSelectBtn').addEventListener('click', function() {
-      hidePhotoAction();
-      if (photoActionOnSelect) photoActionOnSelect();
-    });
-
-    document.getElementById('paDeleteBtn').addEventListener('click', function() {
-      hidePhotoAction();
-      if (photoActionOnDelete) photoActionOnDelete();
-    });
-  }
-
-  function showPhotoAction(onSelect, onDelete) {
-    photoActionOnSelect = onSelect;
-    photoActionOnDelete = onDelete;
-    photoActionMask.classList.add('show');
-    photoActionCard.classList.add('show');
-  }
-
-  function hidePhotoAction() {
-    photoActionMask.classList.remove('show');
-    photoActionCard.classList.remove('show');
-    photoActionOnSelect = null;
-    photoActionOnDelete = null;
   }
 
   // ============ 卡片模块 ============
@@ -69,10 +23,10 @@
     var avatarFileInput = document.createElement('input');
     avatarFileInput.type = 'file'; avatarFileInput.accept = 'image/*';
 
-    // --- 点击背景 → 弹出卡片 ---
+    // --- 点击背景 → 弹出照片操作卡片 ---
     cardUpper.addEventListener('click', function() {
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
-      showPhotoAction(
+      PhotoAction.show(
         function() { bgFileInput.click(); },
         function() {
           cardBg.style.backgroundImage = '';
@@ -83,11 +37,11 @@
       );
     });
 
-    // --- 点击头像 → 弹出卡片 ---
+    // --- 点击头像 → 弹出照片操作卡片 ---
     avatarBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
-      showPhotoAction(
+      PhotoAction.show(
         function() { avatarFileInput.click(); },
         function() {
           avatarImg.src = '';
@@ -210,7 +164,9 @@
       var color = colorPicker.value;
       var opacity = opacitySlider.value / 100;
       opacityValue.textContent = opacitySlider.value + '%';
-      var r = parseInt(color.slice(1,3), 16), g = parseInt(color.slice(3,5), 16), b = parseInt(color.slice(5,7), 16);
+      var r = parseInt(color.slice(1,3), 16);
+      var g = parseInt(color.slice(3,5), 16);
+      var b = parseInt(color.slice(5,7), 16);
       lowerOverlay.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
       if (glassToggle.checked) lowerOverlay.classList.add('glass-effect');
       else lowerOverlay.classList.remove('glass-effect');
@@ -241,17 +197,27 @@
     function loadCardState() {
       if (!window.AppDB) return;
       AppDB.get('card_bg', function(bgData) {
-        if (bgData) { cardBg.style.backgroundImage = 'url(' + bgData + ')'; cardBg.classList.add('has-bg'); }
+        if (bgData) {
+          cardBg.style.backgroundImage = 'url(' + bgData + ')';
+          cardBg.classList.add('has-bg');
+        }
       });
       AppDB.get('card_avatar', function(avatarData) {
-        if (avatarData) { avatarImg.src = avatarData; avatarBtn.classList.add('has-img'); }
+        if (avatarData) {
+          avatarImg.src = avatarData;
+          avatarBtn.classList.add('has-img');
+        }
       });
       AppDB.get('card_state', function(state) {
         if (!state) return;
         if (state.texts) {
           Object.keys(state.texts).forEach(function(key) {
-            if (key === 'line4text') { if (locationText) locationText.textContent = state.texts[key]; }
-            else { var el = document.querySelector('[data-key="' + key + '"]'); if (el) el.textContent = state.texts[key]; }
+            if (key === 'line4text') {
+              if (locationText) locationText.textContent = state.texts[key];
+            } else {
+              var el = document.querySelector('[data-key="' + key + '"]');
+              if (el) el.textContent = state.texts[key];
+            }
           });
         }
         if (state.style) {
@@ -278,10 +244,11 @@
     var avatarFileInput = document.createElement('input');
     avatarFileInput.type = 'file'; avatarFileInput.accept = 'image/*';
 
+    // 点击消息头像 → 弹出照片操作卡片
     if (messageAvatar) {
       messageAvatar.addEventListener('click', function(e) {
         e.stopPropagation();
-        showPhotoAction(
+        PhotoAction.show(
           function() { avatarFileInput.click(); },
           function() {
             messageAvatarImg.src = '';
@@ -311,7 +278,10 @@
 
     if (window.AppDB) {
       AppDB.get('message_avatar', function(data) {
-        if (data && messageAvatarImg) { messageAvatarImg.src = data; messageAvatar.classList.add('has-img'); }
+        if (data && messageAvatarImg) {
+          messageAvatarImg.src = data;
+          messageAvatar.classList.add('has-img');
+        }
       });
       AppDB.get('message_preview', function(text) {
         if (text && messagePreview) messagePreview.textContent = text;
