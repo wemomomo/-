@@ -43,11 +43,3 @@
   font-weight: 500; 
   letter-spacing: .3px; 
 }
-
-/* 图标的编辑按钮 */
-.icon-edit-btn {
-  top: -5px;
-  right: -5px;
-  padding: 3px 6px;
-  font-size: 10px;
-}
