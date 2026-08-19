@@ -1,5 +1,14 @@
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif; background:#ffffff; color:#1c1c1e; overflow:hidden; }
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+html, body { height:100%; background:#ffffff; color:#1c1c1e; overflow:hidden; }
 
 .app-shell { display:flex; flex-direction:column; height:100%; max-width:430px; margin:0 auto; position:relative; }
 
