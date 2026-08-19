@@ -2,7 +2,7 @@
   'use strict';
 
   // ============ IndexedDB ============
-  var DB_NAME = 'MoMoAppDB';
+  var DB_NAME = 'AppDB';
   var DB_VERSION = 1;
   var STORE_NAME = 'appData';
   var db = null;
