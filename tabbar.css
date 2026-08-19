@@ -2,7 +2,7 @@
 .tab-bar {
   position: fixed;
   /* ▼▼▼ 用 calc 计算底部距离 ▼▼▼ */
-  bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(5px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -14,6 +14,14 @@
   pointer-events: none;
   max-width: 380px;
   width: calc(100% - 32px);
+}
+
+/* PWA 端（添加到桌面后）专属调整 */
+@media (display-mode: standalone) {
+  .tab-bar {
+    /* 在 PWA 里去掉苹果强制的安全区高度，直接写固定距离 */
+    bottom: 12px; 
+  }
 }
 
 .tab-bar-capsule {
