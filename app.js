@@ -1,250 +1,266 @@
+
 (function(){
-  // --- 基础元素获取 ---
-  const appShell = document.querySelector('.app-shell');
-  const pageContainer = document.querySelector('.page-container'); // 获取页面容器
-  const pages = document.querySelectorAll('.page');
-  const tabs = document.querySelectorAll('.tab-item');
-  const icons = document.querySelectorAll('.app-icon');
-  
-  // --- 卡片相关元素 ---
-  const profileCard = document.getElementById('profileCard');
-  const cardHeader = document.getElementById('cardHeader');
-  const cardBody = document.getElementById('cardBody');
-  const avatarBtn = document.getElementById('avatarBtn');
-  const avatarImg = document.getElementById('avatarImg');
-  const infoTexts = document.querySelectorAll('.info-text');
+  var pages = document.querySelectorAll('.page');
+  var tabs = document.querySelectorAll('.tab-item');
+  var icons = document.querySelectorAll('.app-icon');
+  var pageContainer = document.querySelector('.page-container');
 
-  // --- 编辑控件相关元素 ---
-  const editControls = document.getElementById('editControls');
-  const glassToggle = document.getElementById('glassToggle');
-  const colorPicker = document.getElementById('colorPicker');
-  const opacitySlider = document.getElementById('opacitySlider');
-  const doneEditBtn = document.getElementById('doneEditBtn');
+  // 卡片元素
+  var profileCard = document.getElementById('profileCard');
+  var cardBg = document.getElementById('cardBg');
+  var cardUpper = document.getElementById('cardUpper');
+  var avatarBtn = document.getElementById('avatarBtn');
+  var avatarImg = document.getElementById('avatarImg');
+  var lowerOverlay = document.getElementById('lowerOverlay');
+  var infoTexts = document.querySelectorAll('.info-text[data-key]');
+  var locationText = document.querySelector('.location-text');
 
-  // --- 文件输入（保持隐藏）---
-  const avatarFileInput = createFileInput();
-  const headerFileInput = createFileInput();
+  // 编辑面板元素
+  var editPanel = document.getElementById('editPanel');
+  var editPanelMask = document.getElementById('editPanelMask');
+  var glassToggle = document.getElementById('glassToggle');
+  var colorPicker = document.getElementById('colorPicker');
+  var opacitySlider = document.getElementById('opacitySlider');
+  var opacityValue = document.getElementById('opacityValue');
+  var doneEditBtn = document.getElementById('doneEditBtn');
 
-  let longPressTimer;
-  let isEditMode = false;
+  // 文件输入
+  var bgFileInput = document.createElement('input');
+  bgFileInput.type = 'file';
+  bgFileInput.accept = 'image/*';
 
-  // ----------------------------------------------------
-  // 主逻辑 & 事件绑定
-  // ----------------------------------------------------
+  var avatarFileInput = document.createElement('input');
+  avatarFileInput.type = 'file';
+  avatarFileInput.accept = 'image/*';
 
+  var longPressTimer;
+
+  // ============ 初始化 ============
   loadState();
-
-  tabs.forEach(tab => tab.addEventListener('click', function() {
-    setActiveTab(this);
-    showPage(this.dataset.tab);
-  }));
-  
-  const actionMap = { plot:'plot', message:'message', explore:'explore', vault:'vault' };
-  icons.forEach(icon => icon.addEventListener('click', function() {
-    const action = this.dataset.action;
-    if(actionMap[action]){
-      tabs.forEach(t => t.classList.remove('active'));
-      showPage(actionMap[action]);
-    }
-  }));
-
-  // ▼▼▼ 长按逻辑修改在这里 ▼▼▼
-  // 将监听器绑定到 pageContainer
-  pageContainer.addEventListener('pointerdown', (e) => {
-    // 获取当前活动的页面
-    const activePage = pageContainer.querySelector('.page.active');
-    
-    // 检查点击的是否是 pageContainer 或 activePage 本身（即空白区域）
-    if (e.target === pageContainer || e.target === activePage) {
-      if (isEditMode) return;
-      // 阻止在空白处长按时可能出现的默认行为（如文本选择）
-      e.preventDefault();
-      longPressTimer = setTimeout(() => {
-          enterEditMode();
-      }, 700); // 700毫秒触发长按
-    }
-  });
-
-  pageContainer.addEventListener('pointerup', () => clearTimeout(longPressTimer));
-  pageContainer.addEventListener('pointerleave', () => clearTimeout(longPressTimer));
-  // ▲▲▲ 长按逻辑修改完毕 ▲▲▲
-
-  doneEditBtn.addEventListener('click', exitEditMode);
-
-  // --- 编辑模式下的交互 ---
-  avatarBtn.addEventListener('click', () => avatarFileInput.click());
-  cardHeader.addEventListener('click', () => {
-    // 允许任何时候点击更换背景
-    headerFileInput.click();
-  });
-
-  avatarFileInput.addEventListener('change', handleImageUpload(avatarImg, 'avatar', (img, src) => {
-      img.src = src;
-      avatarBtn.classList.add('has-img');
-  }));
-
-  headerFileInput.addEventListener('change', handleImageUpload(cardHeader, 'headerBg', (el, src) => {
-      el.style.backgroundImage = `url(${src})`;
-      el.classList.add('has-bg');
-  }));
-  
-  infoTexts.forEach(text => {
-    text.addEventListener('blur', saveState);
-  });
-  
-  glassToggle.addEventListener('change', updateCardBodyStyle);
-  colorPicker.addEventListener('input', updateCardBodyStyle);
-  opacitySlider.addEventListener('input', updateCardBodyStyle);
-
   setupPhotoFrames();
 
+  // ============ 导航 ============
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      setActiveTab(this);
+      showPage(this.dataset.tab);
+    });
+  });
 
-  // ----------------------------------------------------
-  // 功能函数 (这部分函数内容和之前一样)
-  // ----------------------------------------------------
-  
-  function showPage(name) { pages.forEach(p => p.classList.toggle('active', p.dataset.page === name)); }
-  function setActiveTab(tab) { tabs.forEach(t => t.classList.toggle('active', t === tab)); }
-  function createFileInput() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      return input;
-  }
-  
-  function handleImageUpload(element, storageKey, callback) {
-      return function(event) {
-          const file = event.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = e => {
-              const result = e.target.result;
-              callback(element, result);
-              saveState();
-          };
-          reader.readAsDataURL(file);
-      };
-  }
-  
-  function enterEditMode() {
-      if (isEditMode) return;
-      isEditMode = true;
-      appShell.classList.add('edit-mode');
-      infoTexts.forEach(el => el.contentEditable = true);
-  }
-  
-  function exitEditMode() {
-      if (!isEditMode) return;
-      isEditMode = false;
-      appShell.classList.remove('edit-mode');
-      infoTexts.forEach(el => el.contentEditable = false);
-      document.activeElement.blur();
-      saveState();
-  }
-
-  function updateCardBodyStyle() {
-      const color = colorPicker.value;
-      const opacity = opacitySlider.value;
-      const hexOpacity = Math.round(opacity * 255).toString(16).padStart(2, '0');
-      
-      profileCard.style.setProperty('--card-bg-color', `${color}${hexOpacity}`);
-      cardBody.classList.toggle('glass-effect', glassToggle.checked);
-      // 注意：这里不要再调用saveState()了，因为它会在input事件中频繁触发，影响性能
-      // saveState() 会在退出编辑、失焦等关键节点调用
-  }
-
-  // 修改了saveState, 在实时调整颜色透明度时不保存，只在退出编辑或失焦时保存
-  function saveState() {
-      if (document.activeElement === colorPicker || document.activeElement === opacitySlider) {
-          return; // 如果正在调整颜色或透明度，则不保存，避免性能问题
+  var actionMap = { plot:'plot', message:'message', explore:'explore', vault:'vault' };
+  icons.forEach(function(icon){
+    icon.addEventListener('click', function(){
+      var action = this.dataset.action;
+      if(actionMap[action]){
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        showPage(actionMap[action]);
       }
-      const state = {
-          texts: {},
-          avatar: avatarImg.src,
-          headerBg: cardHeader.style.backgroundImage,
-          cardStyle: {
-              isGlass: glassToggle.checked,
-              color: colorPicker.value,
-              opacity: opacitySlider.value,
-          }
-      };
-      
-      infoTexts.forEach(el => {
-          const key = el.dataset.key;
-          if (key === 'line4') {
-            state.texts[key] = el.querySelector('.location-text').textContent.trim();
+    });
+  });
+
+  // ============ 卡片交互（平时就能操作） ============
+
+  // 点击上半部分或背景区域 -> 上传背景图
+  cardUpper.addEventListener('click', function(){ bgFileInput.click(); });
+
+  bgFileInput.addEventListener('change', function(){
+    var file = this.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      cardBg.style.backgroundImage = 'url(' + e.target.result + ')';
+      cardBg.classList.add('has-bg');
+      saveState();
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+
+  // 点击头像 -> 上传头像
+  avatarBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    avatarFileInput.click();
+  });
+
+  avatarFileInput.addEventListener('change', function(){
+    var file = this.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      avatarImg.src = e.target.result;
+      avatarBtn.classList.add('has-img');
+      saveState();
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+
+  // 文字失焦时保存
+  infoTexts.forEach(function(el){
+    el.addEventListener('blur', saveState);
+  });
+  if(locationText){
+    locationText.addEventListener('blur', saveState);
+  }
+
+  // ============ 长按空白处弹出编辑面板 ============
+  pageContainer.addEventListener('pointerdown', function(e){
+    // 只响应点击在 pageContainer 自身 或 page 自身（空白处）
+    if(e.target === pageContainer || e.target.classList.contains('page')){
+      e.preventDefault();
+      longPressTimer = setTimeout(function(){
+        openEditPanel();
+      }, 700);
+    }
+  });
+  pageContainer.addEventListener('pointerup', function(){ clearTimeout(longPressTimer); });
+  pageContainer.addEventListener('pointerleave', function(){ clearTimeout(longPressTimer); });
+  pageContainer.addEventListener('pointermove', function(){ clearTimeout(longPressTimer); });
+
+  // 编辑面板操作
+  glassToggle.addEventListener('change', applyCardStyle);
+  colorPicker.addEventListener('input', applyCardStyle);
+  opacitySlider.addEventListener('input', applyCardStyle);
+
+  doneEditBtn.addEventListener('click', closeEditPanel);
+  editPanelMask.addEventListener('click', closeEditPanel);
+
+  // ============ 功能函数 ============
+
+  function showPage(name){
+    pages.forEach(function(p){ p.classList.toggle('active', p.dataset.page === name); });
+  }
+  function setActiveTab(tab){
+    tabs.forEach(function(t){ t.classList.toggle('active', t === tab); });
+  }
+
+  function openEditPanel(){
+    editPanel.classList.add('show');
+    editPanelMask.classList.add('show');
+  }
+  function closeEditPanel(){
+    editPanel.classList.remove('show');
+    editPanelMask.classList.remove('show');
+    saveState();
+  }
+
+  function applyCardStyle(){
+    var color = colorPicker.value;
+    var opacity = opacitySlider.value / 100;
+    opacityValue.textContent = opacitySlider.value + '%';
+
+    // 把hex颜色转成rgb
+    var r = parseInt(color.slice(1,3), 16);
+    var g = parseInt(color.slice(3,5), 16);
+    var b = parseInt(color.slice(5,7), 16);
+
+    lowerOverlay.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
+
+    if(glassToggle.checked){
+      lowerOverlay.classList.add('glass-effect');
+    } else {
+      lowerOverlay.classList.remove('glass-effect');
+    }
+  }
+
+  function saveState(){
+    var state = {
+      bgImage: cardBg.style.backgroundImage || '',
+      avatar: avatarImg.src || '',
+      hasAvatar: avatarBtn.classList.contains('has-img'),
+      hasBg: cardBg.classList.contains('has-bg'),
+      texts: {},
+      style: {
+        glass: glassToggle.checked,
+        color: colorPicker.value,
+        opacity: opacitySlider.value
+      }
+    };
+
+    infoTexts.forEach(function(el){
+      var key = el.dataset.key;
+      if(key === 'line4'){
+        // line4 本身不存文字，文字在 location-text 里
+      } else {
+        state.texts[key] = el.textContent.trim();
+      }
+    });
+    state.texts['line4text'] = locationText ? locationText.textContent.trim() : '';
+
+    try{ localStorage.setItem('mm_profile_state', JSON.stringify(state)); }catch(e){}
+  }
+
+  function loadState(){
+    try{
+      var saved = localStorage.getItem('mm_profile_state');
+      if(!saved){
+        applyCardStyle();
+        return;
+      }
+      var state = JSON.parse(saved);
+
+      // 恢复背景
+      if(state.bgImage){
+        cardBg.style.backgroundImage = state.bgImage;
+      }
+      if(state.hasBg) cardBg.classList.add('has-bg');
+
+      // 恢复头像
+      if(state.avatar && state.hasAvatar){
+        avatarImg.src = state.avatar;
+        avatarBtn.classList.add('has-img');
+      }
+
+      // 恢复文字
+      if(state.texts){
+        Object.keys(state.texts).forEach(function(key){
+          if(key === 'line4text'){
+            if(locationText) locationText.textContent = state.texts[key];
           } else {
-            state.texts[key] = el.textContent.trim();
+            var el = document.querySelector('[data-key="' + key + '"]');
+            if(el) el.textContent = state.texts[key];
           }
-      });
-      
-      try {
-          localStorage.setItem('mm_profile_state', JSON.stringify(state));
-      } catch(e) { console.error("保存状态失败:", e); }
+        });
+      }
+
+      // 恢复样式
+      if(state.style){
+        glassToggle.checked = state.style.glass;
+        colorPicker.value = state.style.color;
+        opacitySlider.value = state.style.opacity;
+      }
+      applyCardStyle();
+    }catch(e){
+      applyCardStyle();
+    }
   }
 
-  function loadState() {
-      try {
-          const savedState = JSON.parse(localStorage.getItem('mm_profile_state'));
-          const defaults = {
-              isGlass: false,
-              color: '#f0f0f0',
-              opacity: '0.5'
-          };
-          if (!savedState) { 
-              glassToggle.checked = defaults.isGlass;
-              colorPicker.value = defaults.color;
-              opacitySlider.value = defaults.opacity;
-              updateCardBodyStyle();
-              return;
-          }
-          
-          if (savedState.texts) {
-            Object.keys(savedState.texts).forEach(key => {
-                const el = document.querySelector(`[data-key="${key}"]`);
-                if (el) {
-                    if (key === 'line4') { el.querySelector('.location-text').textContent = savedState.texts[key]; } 
-                    else { el.textContent = savedState.texts[key]; }
-                }
-            });
-          }
-
-          if (savedState.avatar) { avatarImg.src = savedState.avatar; avatarBtn.classList.add('has-img'); }
-          if (savedState.headerBg) { cardHeader.style.backgroundImage = savedState.headerBg; cardHeader.classList.add('has-bg'); }
-          
-          const style = savedState.cardStyle || defaults;
-          glassToggle.checked = style.isGlass;
-          colorPicker.value = style.color;
-          opacitySlider.value = style.opacity;
-          updateCardBodyStyle();
-
-      } catch(e) { console.error("加载状态失败:", e); updateCardBodyStyle(); }
-  }
-
-  function setupPhotoFrames() {
-    const photoFrames = document.querySelectorAll('.photo-frame');
+  function setupPhotoFrames(){
+    var photoFrames = document.querySelectorAll('.photo-frame');
     photoFrames.forEach(function(frame){
-      const idx = frame.dataset.photo;
-      const img = frame.querySelector('img');
-      const input = document.createElement('input');
+      var idx = frame.dataset.photo;
+      var img = frame.querySelector('img');
+      var input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
       input.addEventListener('change', function(){
-        const file = this.files[0];
+        var file = this.files[0];
         if(!file) return;
-        const reader = new FileReader();
+        var reader = new FileReader();
         reader.onload = function(e){
-          const result = e.target.result;
-          img.src = result;
+          img.src = e.target.result;
           frame.classList.add('has-img');
-          try{ localStorage.setItem('mm_photo_' + idx, result); }catch(ex){}
+          try{ localStorage.setItem('mm_photo_' + idx, e.target.result); }catch(ex){}
         };
         reader.readAsDataURL(file);
+        this.value = '';
       });
       frame.addEventListener('click', function(){ input.click(); });
-      
-      const saved = localStorage.getItem('mm_photo_' + idx);
-      if(saved){ img.src = saved; frame.classList.add('has-img'); }
+      var saved = localStorage.getItem('mm_photo_' + idx);
+      if(saved){
+        img.src = saved;
+        frame.classList.add('has-img');
+      }
     });
   }
 
