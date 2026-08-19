@@ -129,7 +129,7 @@
   // ============ 页面导航 ============
   var pages = document.querySelectorAll('.page');
   var tabs = document.querySelectorAll('.tab-item');
-  var icons = document.querySelectorAll('.app-icon');
+  var icons = document.querySelectorAll('.app-icon-item');
 
   function showPage(name) {
     pages.forEach(function(p) { p.classList.toggle('active', p.dataset.page === name); });
@@ -145,44 +145,193 @@
     });
   });
 
-  var actionMap = { plot:'plot', message:'message', explore:'explore', vault:'vault' };
+  var actionMap = { 
+    iconPlot: 'plot', 
+    iconMessage: 'message', 
+    iconExplore: 'explore', 
+    iconVault: 'vault' 
+  };
+  
   icons.forEach(function(icon) {
     icon.addEventListener('click', function() {
       // 只有在非编辑模式下才跳转页面
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) {
         return;
       }
-      var action = this.dataset.action;
-      if (actionMap[action]) {
+      var iconId = this.id;
+      var pageName = actionMap[iconId];
+      if (pageName) {
         tabs.forEach(function(t) { t.classList.remove('active'); });
-        showPage(actionMap[action]);
+        showPage(pageName);
       }
     });
   });
 
+  // ============ 图标拖拽功能 ============
+  function initIconDrag() {
+    var DELAY = 250;
+    var SNAP = 12;
+    var ALL_ICONS = ['iconPlot', 'iconMessage', 'iconExplore', 'iconVault'];
+
+    // 恢复保存的位置
+    dbGet('appIconOffsets', function(offsets) {
+      if (!offsets) offsets = {};
+      ALL_ICONS.forEach(function(id) {
+        var el = document.getElementById(id); 
+        if(!el) return;
+        var off = offsets[id]; 
+        if(off) {
+          var tf = 'translate('+off.x+'px,'+off.y+'px)';
+          el.style.setProperty('--t', tf);
+          el.style.transform = tf;
+        }
+      });
+    });
+
+    // 绑定拖拽事件
+    ALL_ICONS.forEach(function(id) {
+      var el = document.getElementById(id); 
+      if(!el || el._iconDragBound) return;
+      el._iconDragBound = true;
+      
+      var startX, startY, origX, origY, longPressed = false, timer, moved = false;
+
+      el.addEventListener('touchstart', function(e) {
+        var t = e.touches[0]; 
+        startX = t.clientX; 
+        startY = t.clientY; 
+        longPressed = false; 
+        moved = false;
+        
+        timer = setTimeout(function() {
+          longPressed = true;
+          dbGet('appIconOffsets', function(savedOffsets) {
+            if (!savedOffsets) savedOffsets = {};
+            var off = savedOffsets[id] || {x:0, y:0};
+            origX = off.x; 
+            origY = off.y;
+            el.classList.add('is-grabbed');
+            el.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            var tf = 'translate('+origX+'px,'+origY+'px) scale(1.1)';
+            el.style.setProperty('--t', tf);
+            el.style.transform = tf;
+            el.style.zIndex = '999';
+            if(navigator.vibrate) navigator.vibrate(15);
+          });
+        }, DELAY);
+      }, {passive:true});
+
+      el.addEventListener('touchmove', function(e) {
+        var t = e.touches[0];
+        if(timer && !longPressed) {
+          if(Math.abs(t.clientX-startX)>8 || Math.abs(t.clientY-startY)>8){
+            clearTimeout(timer);
+            timer=null;
+          }
+          return;
+        }
+        if(!longPressed) return;
+        moved = true; 
+        e.preventDefault(); 
+        e.stopPropagation();
+        
+        var nx = origX + (t.clientX - startX);
+        var ny = origY + (t.clientY - startY);
+        
+        // 磁吸对齐
+        dbGet('appIconOffsets', function(savedOffsets) {
+          if (!savedOffsets) savedOffsets = {};
+          ALL_ICONS.forEach(function(otherId) {
+            if(otherId === id) return;
+            var otherOff = savedOffsets[otherId] || {x:0, y:0};
+            if(Math.abs(ny - otherOff.y) < SNAP) ny = otherOff.y;
+            if(Math.abs(nx - otherOff.x) < SNAP) nx = otherOff.x;
+          });
+        });
+        
+        el.style.transition = 'none';
+        var tf = 'translate('+nx+'px,'+ny+'px) scale(1.1)';
+        el.style.setProperty('--t', tf);
+        el.style.transform = tf;
+      }, {passive:false});
+
+      el.addEventListener('touchend', function(e) {
+        clearTimeout(timer); 
+        timer=null;
+        el.classList.remove('is-grabbed'); 
+        
+        if(longPressed) {
+          if(moved) { 
+            // 保存位置
+            dbGet('appIconOffsets', function(savedOffsets) {
+              if (!savedOffsets) savedOffsets = {};
+              var match = el.style.transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+              if(match) { 
+                savedOffsets[id] = {x:parseFloat(match[1]), y:parseFloat(match[2])}; 
+                dbSave('appIconOffsets', savedOffsets);
+              }
+            });
+            e.stopPropagation(); 
+          }
+          el.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          dbGet('appIconOffsets', function(savedOffsets) {
+            if (!savedOffsets) savedOffsets = {};
+            var curOff = savedOffsets[id] || {x:0, y:0};
+            var tf = 'translate('+curOff.x+'px,'+curOff.y+'px) scale(1)';
+            el.style.setProperty('--t', tf);
+            el.style.transform = tf;
+          });
+          setTimeout(function(){ 
+            el.style.transition=''; 
+            el.style.zIndex=''; 
+          }, 350);
+        } else {
+          el.style.transition=''; 
+          el.style.zIndex='';
+        }
+        longPressed=false; 
+        moved=false;
+      });
+    });
+  }
+
   // ============ 图标上传功能 ============
   function setupAppIcons() {
-    var appIcons = document.querySelectorAll('.app-icon[data-icon]');
+    var appIcons = document.querySelectorAll('.app-icon-item');
     
-    appIcons.forEach(function(icon) {
-      var iconName = icon.dataset.icon;
-      var iconImage = icon.querySelector('.icon-image[data-icon="' + iconName + '"]');
+    appIcons.forEach(function(iconItem) {
+      var iconId = iconItem.id;
+      var iconImg = iconItem.querySelector('.app-icon-glass');
+      var iconImage = iconItem.querySelector('.icon-image');
+      
+      if (!iconId || !iconImg) return;
       
       // 创建文件输入
       var fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = 'image/*';
       
-      // 点击图标上传（仅编辑模式）
-      icon.addEventListener('click', function(e) {
+      // 双击图标上传（编辑模式）
+      var tapCount = 0;
+      var tapTimer = null;
+      
+      iconItem.addEventListener('click', function(e) {
         if (!document.querySelector('.app-shell').classList.contains('edit-mode')) {
           return;
         }
-        if (icon.classList.contains('dragging')) {
-          return;
+        
+        tapCount++;
+        clearTimeout(tapTimer);
+        
+        if (tapCount === 2) {
+          e.stopPropagation();
+          fileInput.click();
+          tapCount = 0;
+        } else {
+          tapTimer = setTimeout(function() {
+            tapCount = 0;
+          }, 300);
         }
-        e.stopPropagation();
-        fileInput.click();
       });
       
       // 上传后裁剪
@@ -193,9 +342,11 @@
         var reader = new FileReader();
         reader.onload = function(e) {
           openCropper(e.target.result, { aspectRatio: 1 }, function(croppedData) {
-            iconImage.style.backgroundImage = 'url(' + croppedData + ')';
-            iconImage.classList.add('has-image');
-            dbSave('icon_' + iconName, croppedData);
+            if (iconImage) {
+              iconImage.style.backgroundImage = 'url(' + croppedData + ')';
+              iconImage.classList.add('has-image');
+            }
+            dbSave('icon_' + iconId, croppedData);
           });
         };
         reader.readAsDataURL(file);
@@ -203,8 +354,8 @@
       });
       
       // 加载已保存的图标
-      dbGet('icon_' + iconName, function(data) {
-        if (data) {
+      dbGet('icon_' + iconId, function(data) {
+        if (data && iconImage) {
           iconImage.style.backgroundImage = 'url(' + data + ')';
           iconImage.classList.add('has-image');
         }
@@ -215,6 +366,7 @@
   // ============ 初始化 ============
   openDB(function() {
     setupAppIcons();
+    initIconDrag();
     window.dispatchEvent(new CustomEvent('dbReady'));
   });
 
