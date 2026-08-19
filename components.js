@@ -58,15 +58,12 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        var result = e.target.result;
-        setTimeout(function() {
-          AppCropper.open(result, { aspectRatio: 16/11 }, function(croppedData) {
-            cardBg.style.backgroundImage = 'url(' + croppedData + ')';
-            cardBg.classList.add('has-bg');
-            AppDB.save('card_bg', croppedData);
-            saveCardState();
-          });
-        }, 300);
+        AppCropper.open(e.target.result, { aspectRatio: 16/11 }, function(croppedData) {
+          cardBg.style.backgroundImage = 'url(' + croppedData + ')';
+          cardBg.classList.add('has-bg');
+          AppDB.save('card_bg', croppedData);
+          saveCardState();
+        });
       };
       reader.readAsDataURL(file);
       this.value = '';
@@ -78,15 +75,12 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        var result = e.target.result;
-        setTimeout(function() {
-          AppCropper.open(result, { aspectRatio: 1 }, function(croppedData) {
-            avatarImg.src = croppedData;
-            avatarBtn.classList.add('has-img');
-            AppDB.save('card_avatar', croppedData);
-            saveCardState();
-          });
-        }, 300);
+        AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
+          avatarImg.src = croppedData;
+          avatarBtn.classList.add('has-img');
+          AppDB.save('card_avatar', croppedData);
+          saveCardState();
+        });
       };
       reader.readAsDataURL(file);
       this.value = '';
@@ -278,14 +272,11 @@
       if (!file) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        var result = e.target.result;
-        setTimeout(function() {
-          AppCropper.open(result, { aspectRatio: 1 }, function(croppedData) {
-            messageAvatarImg.src = croppedData;
-            messageAvatar.classList.add('has-img');
-            AppDB.save('message_avatar', croppedData);
-          });
-        }, 300);
+        AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
+          messageAvatarImg.src = croppedData;
+          messageAvatar.classList.add('has-img');
+          AppDB.save('message_avatar', croppedData);
+        });
       };
       reader.readAsDataURL(file);
       this.value = '';
