@@ -22,8 +22,8 @@
 }
 
 .app-icon-glass {
-  width: 73px;
-  height: 73px;
+  width: 60px;
+  height: 60px;
   border-radius: 15px;
   border: 1px solid #d1d5db;
   background: rgba(255,255,255,0.2);
@@ -38,8 +38,8 @@
 }
 
 .app-icon-glass svg {
-  width: 55%;
-  height: 55%;
+  width: 45%;
+  height: 45%;
 }
 
 .app-icon-label {
