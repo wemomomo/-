@@ -34,7 +34,7 @@
         } else {
           exitEditMode();
         }
-      }, 200);
+      }, 100);
     }
   }, {passive: false});
 
