@@ -1,18 +1,19 @@
 /* ========== 底部栏 (苹果胶囊样式) ========== */
-.tab-bar { 
-  /* ▼▼▼ 关键修改：改成绝对定位，让底部栏悬浮在内容上方 ▼▼▼ */
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex; 
-  align-items: flex-end; 
+.tab-bar {
+  position: fixed;
+  /* ▼▼▼ 用 calc 计算底部距离 ▼▼▼ */
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  padding: 0;
   background: transparent;
   z-index: 100;
-  /* ▼▼▼ 悬浮栏空白处不阻挡点击，透穿给底层的页面 ▼▼▼ */
-  pointer-events: none; 
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100% - 32px);
 }
 
 .tab-bar-capsule {
@@ -26,10 +27,8 @@
   border-radius: 999px;
   padding: 8px 12px;
   width: 100%;
-  max-width: 380px;
   transition: all 0.3s ease;
-  /* ▼▼▼ 胶囊本体恢复点击事件 ▼▼▼ */
-  pointer-events: auto; 
+  pointer-events: auto;
 }
 
 .tab-item { 
