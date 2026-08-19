@@ -77,7 +77,8 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 .photo-action-card {
   position: fixed; top: 50%; left: 50%;
   transform: translate(-50%, -50%) scale(0.9);
-  background: rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-radius: 14px; overflow: hidden; z-index: 99999;
   opacity: 0; pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease; min-width: 200px;
@@ -97,19 +98,35 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 }
 .photo-action-mask.show { display: block; }
 
-/* ========== 图片裁剪（Canvas版） ========== */
+/* ========== 图片裁剪 ========== */
 .crop-overlay {
-  position: fixed; inset: 0; z-index: 200000;
-  background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  flex-direction: column;
 }
+.crop-overlay.show {
+  display: flex;
+}
+
 .crop-container {
-  width: 100%; height: 100%; display: flex; flex-direction: column;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
 .crop-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: calc(16px + env(safe-area-inset-top, 0)) 16px 12px; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(16px + env(safe-area-inset-top, 0)) 16px 12px;
+  flex-shrink: 0;
 }
 .crop-header span { font-size: 16px; font-weight: 600; color: #fff; }
+
 .crop-cancel, .crop-confirm {
   padding: 8px 18px; border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
@@ -117,6 +134,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 .crop-cancel { background: rgba(255,255,255,0.15); color: #fff; }
 .crop-confirm { background: #fff; color: #111; }
 .crop-cancel:active, .crop-confirm:active { opacity: 0.7; }
+
 .crop-toolbar {
   display: flex; justify-content: center; gap: 8px;
   padding: 0 16px 8px; flex-shrink: 0;
@@ -128,10 +146,10 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   cursor: pointer; font-family: inherit; transition: all 0.15s;
 }
 .crop-ratio-btn.active {
-  background: rgba(255,255,255,0.9); color: #111;
-  border-color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.9); color: #111; border-color: rgba(255,255,255,0.9);
 }
 .crop-ratio-btn:active { opacity: 0.7; }
+
 .crop-workspace {
   flex: 1; display: flex; align-items: center; justify-content: center;
   padding: 20px; overflow: hidden;
