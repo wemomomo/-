@@ -1,4 +1,3 @@
-
 (function(){
   'use strict';
 
@@ -53,7 +52,6 @@
     tx.onerror = function() { if (callback) callback(); };
   }
 
-  // 暴露到全局
   window.AppDB = {
     open: openDB,
     save: dbSave,
@@ -68,18 +66,15 @@
   var cropConfirm = document.getElementById('cropConfirm');
   var cropper = null;
   var cropCallback = null;
-  var cropAspect = null;
 
   function openCropper(imageDataUrl, options, callback) {
     cropCallback = callback;
-    cropAspect = (options && options.aspectRatio) || NaN;
+    var cropAspect = (options && options.aspectRatio) || NaN;
     cropImage.src = imageDataUrl;
     cropModal.classList.add('show');
 
     setTimeout(function() {
-      if (cropper) {
-        cropper.destroy();
-      }
+      if (cropper) cropper.destroy();
       cropper = new Cropper(cropImage, {
         aspectRatio: cropAspect,
         viewMode: 0,
@@ -89,7 +84,6 @@
         movable: true,
         zoomable: true,
         scalable: true,
-        rotatable: true,
         minCropBoxWidth: 50,
         minCropBoxHeight: 50
       });
@@ -106,7 +100,6 @@
   }
 
   cropCancel.addEventListener('click', closeCropper);
-
   cropConfirm.addEventListener('click', function() {
     if (!cropper || !cropCallback) return;
     var canvas = cropper.getCroppedCanvas({
@@ -120,7 +113,6 @@
     cb(dataUrl);
   });
 
-  // 暴露到全局
   window.AppCropper = {
     open: openCropper,
     close: closeCropper
@@ -129,7 +121,6 @@
   // ============ 页面导航 ============
   var pages = document.querySelectorAll('.page');
   var tabs = document.querySelectorAll('.tab-item');
-  var icons = document.querySelectorAll('.app-icon-item');
 
   function showPage(name) {
     pages.forEach(function(p) { p.classList.toggle('active', p.dataset.page === name); });
@@ -145,35 +136,12 @@
     });
   });
 
-  var actionMap = { 
-    iconPlot: 'plot', 
-    iconMessage: 'message', 
-    iconExplore: 'explore', 
-    iconVault: 'vault' 
-  };
-  
-  icons.forEach(function(icon) {
-    icon.addEventListener('click', function() {
-      // 只有在非编辑模式下才跳转页面
-      if (document.querySelector('.app-shell').classList.contains('edit-mode')) {
-        return;
-      }
-      var iconId = this.id;
-      var pageName = actionMap[iconId];
-      if (pageName) {
-        tabs.forEach(function(t) { t.classList.remove('active'); });
-        showPage(pageName);
-      }
-    });
-  });
-
   // ============ 图标拖拽功能 ============
   function initIconDrag() {
     var DELAY = 250;
     var SNAP = 12;
     var ALL_ICONS = ['iconPlot', 'iconMessage', 'iconExplore', 'iconVault'];
 
-    // 恢复保存的位置
     dbGet('appIconOffsets', function(offsets) {
       if (!offsets) offsets = {};
       ALL_ICONS.forEach(function(id) {
@@ -188,7 +156,6 @@
       });
     });
 
-    // 绑定拖拽事件
     ALL_ICONS.forEach(function(id) {
       var el = document.getElementById(id); 
       if(!el || el._iconDragBound) return;
@@ -238,7 +205,6 @@
         var nx = origX + (t.clientX - startX);
         var ny = origY + (t.clientY - startY);
         
-        // 磁吸对齐
         dbGet('appIconOffsets', function(savedOffsets) {
           if (!savedOffsets) savedOffsets = {};
           ALL_ICONS.forEach(function(otherId) {
@@ -247,12 +213,12 @@
             if(Math.abs(ny - otherOff.y) < SNAP) ny = otherOff.y;
             if(Math.abs(nx - otherOff.x) < SNAP) nx = otherOff.x;
           });
+          
+          el.style.transition = 'none';
+          var tf = 'translate('+nx+'px,'+ny+'px) scale(1.1)';
+          el.style.setProperty('--t', tf);
+          el.style.transform = tf;
         });
-        
-        el.style.transition = 'none';
-        var tf = 'translate('+nx+'px,'+ny+'px) scale(1.1)';
-        el.style.setProperty('--t', tf);
-        el.style.transform = tf;
       }, {passive:false});
 
       el.addEventListener('touchend', function(e) {
@@ -262,7 +228,6 @@
         
         if(longPressed) {
           if(moved) { 
-            // 保存位置
             dbGet('appIconOffsets', function(savedOffsets) {
               if (!savedOffsets) savedOffsets = {};
               var match = el.style.transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
@@ -295,82 +260,12 @@
     });
   }
 
-  // ============ 图标上传功能 ============
-  function setupAppIcons() {
-    var appIcons = document.querySelectorAll('.app-icon-item');
-    
-    appIcons.forEach(function(iconItem) {
-      var iconId = iconItem.id;
-      var iconImg = iconItem.querySelector('.app-icon-glass');
-      var iconImage = iconItem.querySelector('.icon-image');
-      
-      if (!iconId || !iconImg) return;
-      
-      // 创建文件输入
-      var fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      
-      // 双击图标上传（编辑模式）
-      var tapCount = 0;
-      var tapTimer = null;
-      
-      iconItem.addEventListener('click', function(e) {
-        if (!document.querySelector('.app-shell').classList.contains('edit-mode')) {
-          return;
-        }
-        
-        tapCount++;
-        clearTimeout(tapTimer);
-        
-        if (tapCount === 2) {
-          e.stopPropagation();
-          fileInput.click();
-          tapCount = 0;
-        } else {
-          tapTimer = setTimeout(function() {
-            tapCount = 0;
-          }, 300);
-        }
-      });
-      
-      // 上传后裁剪
-      fileInput.addEventListener('change', function() {
-        var file = this.files[0];
-        if (!file) return;
-        
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          openCropper(e.target.result, { aspectRatio: 1 }, function(croppedData) {
-            if (iconImage) {
-              iconImage.style.backgroundImage = 'url(' + croppedData + ')';
-              iconImage.classList.add('has-image');
-            }
-            dbSave('icon_' + iconId, croppedData);
-          });
-        };
-        reader.readAsDataURL(file);
-        this.value = '';
-      });
-      
-      // 加载已保存的图标
-      dbGet('icon_' + iconId, function(data) {
-        if (data && iconImage) {
-          iconImage.style.backgroundImage = 'url(' + data + ')';
-          iconImage.classList.add('has-image');
-        }
-      });
-    });
-  }
-
   // ============ 初始化 ============
   openDB(function() {
-    setupAppIcons();
     initIconDrag();
     window.dispatchEvent(new CustomEvent('dbReady'));
   });
 
-  // 暴露导航方法到全局
   window.AppNav = {
     showPage: showPage,
     setActiveTab: setActiveTab
