@@ -1,3 +1,4 @@
+
 /* ========== 个人卡片 ========== */
 .profile-card {
   width: 100%;
@@ -196,7 +197,7 @@
   position: absolute;
   top: -10px;
   right: 20px;
-  background: #F6FBFF;
+  background: #8e8e93;
   border-radius: 12px;
   padding: 2px 8px;
   display: flex;
@@ -207,13 +208,13 @@
 .badge-icon {
   width: 14px;
   height: 14px;
-  color: #8e8e93;
+  color: #fff;
 }
 
 .message-badge span {
   font-size: 10px;
-  color: #8e8e93;
-  font-weight: 800;
+  color: #fff;
+  font-weight: 600;
 }
 
 /* ========== 编辑面板 ========== */
@@ -310,6 +311,7 @@
 
 .control-row input[type="range"] { 
   flex: 1; 
+  min-width: 0;
   -webkit-appearance: none; 
   appearance: none; 
   height: 5px; 
@@ -341,6 +343,7 @@
   position: relative; 
   width: 44px; 
   height: 24px; 
+  flex-shrink: 0;
 }
 
 .toggle-switch input { 
@@ -453,11 +456,12 @@ input:checked + label:before {
 .popup-card-row:last-child {
   margin-bottom: 0;
 }
-.popup-card-row span {
+.popup-card-row > span:first-child {
   font-size: 13px;
   font-weight: 500;
   color: #3c3c43;
-  min-width: 65px;
+  min-width: 55px;
+  flex-shrink: 0;
 }
 .popup-card-row input[type="color"] {
   width: 32px;
@@ -467,9 +471,11 @@ input:checked + label:before {
   background: none;
   cursor: pointer;
   padding: 2px;
+  flex-shrink: 0;
 }
 .popup-card-row input[type="range"] {
   flex: 1;
+  min-width: 0;
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
@@ -493,6 +499,7 @@ input:checked + label:before {
   color: #8e8e93;
   min-width: 36px;
   text-align: right;
+  flex-shrink: 0;
 }
 
 .popup-mask {
