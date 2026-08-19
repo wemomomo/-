@@ -34,11 +34,9 @@
   avatarFileInput.accept = 'image/*';
 
   var longPressTimer;
-  var startX, startY;
 
   // ============ 初始化 ============
   loadState();
-  setupPhotoFrames();
 
   // ============ 导航 ============
   tabs.forEach(function(tab){
@@ -104,32 +102,18 @@
     locationText.addEventListener('blur', saveState);
   }
 
-  // ▼▼▼ 长按空白处弹出编辑面板（彻底优化版） ▼▼▼
-  
-  // 阻止整个页面容器的上下文菜单和选择行为
-  pageContainer.addEventListener('contextmenu', function(e){
-    // 如果点击的不是可编辑文本，阻止右键菜单
-    if(!isEditableElement(e.target)){
-      e.preventDefault();
-    }
-  });
-
+  // ============ 长按空白处弹出编辑面板 ============
+  var startX, startY;
   pageContainer.addEventListener('touchstart', function(e){
-    // 只响应点击在空白处（pageContainer 或 page 本身）
     if(e.target === pageContainer || e.target.classList.contains('page')){
-      // 立即阻止默认行为，防止触发文本选择
       e.preventDefault();
-      
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
-      
       longPressTimer = setTimeout(function(){
-        // 长按成功，清除任何可能的文本选择
-        clearTextSelection();
         openEditPanel();
       }, 700);
     }
-  }, {passive: false}); // passive: false 确保 preventDefault 生效
+  }, {passive: false});
 
   pageContainer.addEventListener('touchend', function(){ 
     clearTimeout(longPressTimer); 
@@ -140,7 +124,6 @@
   });
   
   pageContainer.addEventListener('touchmove', function(e){ 
-    // 如果手指移动超过10px，取消长按
     if(startX && startY){
       var dx = Math.abs(e.touches[0].clientX - startX);
       var dy = Math.abs(e.touches[0].clientY - startY);
@@ -177,32 +160,11 @@
     saveState();
   }
 
-  // 清除文本选择
-  function clearTextSelection(){
-    if(window.getSelection){
-      var selection = window.getSelection();
-      if(selection.removeAllRanges){
-        selection.removeAllRanges();
-      }
-    }
-  }
-
-  // 判断是否为可编辑元素
-  function isEditableElement(el){
-    if(!el) return false;
-    var editable = el.contentEditable === 'true' || 
-                   el.isContentEditable || 
-                   el.tagName === 'INPUT' || 
-                   el.tagName === 'TEXTAREA';
-    return editable;
-  }
-
   function applyCardStyle(){
     var color = colorPicker.value;
     var opacity = opacitySlider.value / 100;
     opacityValue.textContent = opacitySlider.value + '%';
 
-    // 把hex颜色转成rgb
     var r = parseInt(color.slice(1,3), 16);
     var g = parseInt(color.slice(3,5), 16);
     var b = parseInt(color.slice(5,7), 16);
@@ -252,19 +214,16 @@
       }
       var state = JSON.parse(saved);
 
-      // 恢复背景
       if(state.bgImage){
         cardBg.style.backgroundImage = state.bgImage;
       }
       if(state.hasBg) cardBg.classList.add('has-bg');
 
-      // 恢复头像
       if(state.avatar && state.hasAvatar){
         avatarImg.src = state.avatar;
         avatarBtn.classList.add('has-img');
       }
 
-      // 恢复文字
       if(state.texts){
         Object.keys(state.texts).forEach(function(key){
           if(key === 'line4text'){
@@ -276,7 +235,6 @@
         });
       }
 
-      // 恢复样式
       if(state.style){
         glassToggle.checked = state.style.glass;
         colorPicker.value = state.style.color;
@@ -286,35 +244,6 @@
     }catch(e){
       applyCardStyle();
     }
-  }
-
-  function setupPhotoFrames(){
-    var photoFrames = document.querySelectorAll('.photo-frame');
-    photoFrames.forEach(function(frame){
-      var idx = frame.dataset.photo;
-      var img = frame.querySelector('img');
-      var input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.addEventListener('change', function(){
-        var file = this.files[0];
-        if(!file) return;
-        var reader = new FileReader();
-        reader.onload = function(e){
-          img.src = e.target.result;
-          frame.classList.add('has-img');
-          try{ localStorage.setItem('mm_photo_' + idx, e.target.result); }catch(ex){}
-        };
-        reader.readAsDataURL(file);
-        this.value = '';
-      });
-      frame.addEventListener('click', function(){ input.click(); });
-      var saved = localStorage.getItem('mm_photo_' + idx);
-      if(saved){
-        img.src = saved;
-        frame.classList.add('has-img');
-      }
-    });
   }
 
 })();
