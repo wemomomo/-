@@ -3,19 +3,33 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 
 .app-shell { display:flex; flex-direction:column; height:100%; max-width:430px; margin:0 auto; position:relative; }
 
-.page-container { flex:1; overflow-y:auto; padding:20px 16px 0; }
-.page { display:none; flex-direction:column; gap:24px; }
+/* ▼▼▼ 页面容器改成固定布局，不允许滚动 ▼▼▼ */
+.page-container { 
+  flex:1; 
+  overflow:hidden; /* 禁止滚动 */
+  padding:16px 16px 0; 
+  display: flex;
+  flex-direction: column;
+}
+.page { 
+  display:none; 
+  flex-direction:column; 
+  gap:16px; 
+  height: 100%; /* 固定高度 */
+  overflow: hidden; /* 禁止内部滚动 */
+}
 .page.active { display:flex; }
 
 /* ========== 个人卡片 ========== */
 .profile-card {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 10; /* 恢复原来的比例 */
   border-radius: 24px;
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
   border: 1px solid #e5e5ea;
+  flex-shrink: 0; /* 防止被压缩 */
 }
 
 /* 背景图层，铺满整个卡片 */
@@ -109,8 +123,8 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  margin-top: 44px; /* 头像半径 + 间距 */
+  gap: 3px;
+  margin-top: 42px; /* 头像半径 + 间距 */
   padding: 0 20px;
   width: 100%;
 }
@@ -133,7 +147,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   color: #c7c7cc;
   font-weight: 400;
 }
-.info-text.line-1 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.info-text.line-1 { font-size: 17px; font-weight: 600; margin-bottom: 1px; }
 .info-text.line-2 { font-size: 13px; }
 .info-text.line-3 { font-size: 13px; }
 .info-text.line-4 {
@@ -142,7 +156,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin-top: 4px;
+  margin-top: 2px;
   color: #6c6c70;
 }
 .info-text.line-4:empty::before { content: none; }
@@ -167,7 +181,7 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px 20px 0 0;
-  padding: 12px 24px 32px;
+  padding: 12px 24px calc(env(safe-area-inset-bottom, 0px) + 16px);
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 200;
@@ -180,9 +194,9 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   height: 4px;
   border-radius: 2px;
   background: #d1d1d6;
-  margin: 0 auto 20px;
+  margin: 0 auto 16px;
 }
-.edit-panel-content { display: flex; flex-direction: column; gap: 18px; }
+.edit-panel-content { display: flex; flex-direction: column; gap: 14px; }
 
 .control-row {
   display: flex;
@@ -207,12 +221,12 @@ input:checked + label:before { transform: translateX(20px); }
   border: none;
   background: #007aff;
   color: white;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  padding: 12px;
+  padding: 10px;
   border-radius: 12px;
   cursor: pointer;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .edit-panel-mask {
@@ -228,7 +242,13 @@ input:checked + label:before { transform: translateX(20px); }
 
 
 /* ========== 照片框 ========== */
-.photo-row { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; padding:0; }
+.photo-row { 
+  display:grid; 
+  grid-template-columns:repeat(3, 1fr); 
+  gap:10px; 
+  padding:0;
+  flex-shrink: 0; /* 防止被压缩 */
+}
 
 .photo-frame { aspect-ratio:1; border-radius:12px; background:#f2f2f7; border:1px solid #e5e5ea; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; }
 .photo-frame img { width:100%; height:100%; object-fit:cover; display:none; position:absolute; inset:0; }
@@ -237,11 +257,17 @@ input:checked + label:before { transform: translateX(20px); }
 .photo-frame.has-img img { display:block; }
 
 /* ========== 功能图标 ========== */
-.app-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:20px 16px; padding:24px 8px; }
-.app-icon { display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; -webkit-user-select:none; user-select:none; }
+.app-grid { 
+  display:grid; 
+  grid-template-columns:repeat(4, 1fr); 
+  gap:16px 12px; 
+  padding:16px 0 0;
+  flex-shrink: 0; /* 防止被压缩 */
+}
+.app-icon { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; -webkit-user-select:none; user-select:none; }
 .app-icon:active .icon-box { transform:scale(.88); }
-.app-icon .icon-box { width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center; background:#f2f2f7; border:1px solid #e5e5ea; transition:transform .15s ease; }
-.app-icon .icon-box svg { width:28px; height:28px; stroke:#1c1c1e; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.app-icon .icon-box { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#f2f2f7; border:1px solid #e5e5ea; transition:transform .15s ease; }
+.app-icon .icon-box svg { width:26px; height:26px; stroke:#1c1c1e; stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 .app-icon .icon-label { font-size:11px; color:#3c3c43; font-weight:500; letter-spacing:.3px; }
 
 /* ========== 底部 TabBar ========== */
