@@ -68,7 +68,7 @@ html, body {
 .card-upper {
   position: relative;
   z-index: 1;
-  height: 50%;
+  height: 40%;
   cursor: pointer;
 }
 
@@ -76,7 +76,7 @@ html, body {
 .card-lower {
   position: relative;
   z-index: 1;
-  height: 50%;
+  height: 60%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -126,7 +126,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   margin-top: 44px;
   padding: 0 20px;
   width: 100%;
@@ -162,8 +162,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  margin-top: 2px;
+  gap: 1px;
   color: #6c6c70;
   -webkit-user-select: none;
   user-select: none;
