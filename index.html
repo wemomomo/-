@@ -33,20 +33,16 @@
 
     <div class="page active" data-page="home">
       
-      <!-- ▼▼▼ 个人卡片 ▼▼▼ -->
+      <!-- 个人卡片 -->
       <div class="profile-card draggable" id="profileCard" data-component="card">
         <div class="card-bg" id="cardBg"></div>
-        
         <div class="card-upper" id="cardUpper"></div>
-        
         <div class="card-lower">
           <div class="lower-overlay" id="lowerOverlay"></div>
-          
           <div class="avatar-wrapper" id="avatarBtn">
             <img id="avatarImg" alt="头像">
             <svg class="avatar-placeholder" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
           </div>
-          
           <div class="info-area">
             <div class="info-text line-1" contenteditable="true" data-key="line1" data-placeholder="姓名"></div>
             <div class="info-text line-2" contenteditable="true" data-key="line2" data-placeholder="身份/称号"></div>
@@ -60,10 +56,9 @@
         <button class="edit-btn" data-edit-target="card">编辑</button>
       </div>
 
-      <!-- ▼▼▼ 消息卡片 ▼▼▼ -->
+      <!-- 消息卡片 -->
       <div class="message-card draggable" id="messageCard" data-component="message">
         <button class="edit-btn" data-edit-target="message">编辑</button>
-        
         <div class="message-avatar" id="messageAvatar">
           <img id="messageAvatarImg" alt="角色头像">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
@@ -72,7 +67,6 @@
           <div class="message-preview" id="messagePreview" contenteditable="true">点击编辑消息内容...</div>
         </div>
         <div class="message-badge">
-          <!-- 正确的三个点气泡图标 -->
           <svg class="badge-icon" viewBox="0 0 20 22">
             <path d="M4 2 L16 2 Q18 2 18 4 L18 12 Q18 14 16 14 L11 14 L10 17 L9 14 L4 14 Q2 14 2 12 L2 4 Q2 2 4 2 Z" 
                   stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -84,7 +78,7 @@
         </div>
       </div>
 
-      <!-- ▼▼▼ 四个图标（修复了类名错误） ▼▼▼ -->
+      <!-- 四个图标 -->
       <div class="icons-row">
         <div class="app-icon-item" id="iconPlot">
           <div class="app-icon-glass" id="iconPlotImg">
@@ -126,6 +120,10 @@
     <div class="page" data-page="message"><div class="page-title">传讯</div></div>
     <div class="page" data-page="explore"><div class="page-title">万象</div></div>
     <div class="page" data-page="vault"><div class="page-title">宝阁</div></div>
+    
+    <!-- ▼ 之前弄丢的面具页面补回来了 ▼ -->
+    <div class="page" data-page="mask"><div class="page-title">面具</div></div> 
+    
     <div class="page" data-page="character"><div class="page-title">角色</div></div>
     <div class="page" data-page="settings"><div class="page-title">设置</div></div>
     <div class="page" data-page="life"><div class="page-title">浮生</div></div>
@@ -134,10 +132,13 @@
   <!-- 底部胶囊栏 -->
   <div class="tab-bar">
     <div class="tab-bar-capsule">
-      <div class="tab-item active" data-tab="home">
+      
+      <!-- ▼ 面具和首页完全解绑了，去掉了 active 类，且改为 data-tab="mask" ▼ -->
+      <div class="tab-item" data-tab="mask">
         <div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
         <div class="tab-label">面具</div>
       </div>
+      
       <div class="tab-item" data-tab="character">
         <div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg></div>
         <div class="tab-label">角色</div>
