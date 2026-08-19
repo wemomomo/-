@@ -1,3 +1,4 @@
+
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif; background:#ffffff; color:#1c1c1e; overflow:hidden; }
 
@@ -23,10 +24,10 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
 }
 .page.active { display:flex; }
 
-/* ========== 图标容器（控制图标之间的间距） ========== */
+/* ========== 图标容器 ========== */
 .icons-row {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   justify-content: flex-start;
   flex-wrap: wrap;
   flex-shrink: 0;
@@ -96,13 +97,12 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
-
 .toast-message.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* ========== 照片操作卡片 ========== */
+/* ========== 照片操作卡片（全局） ========== */
 .photo-action-card {
   position: fixed;
   top: 50%;
@@ -154,4 +154,76 @@ html, body { height:100%; font-family:-apple-system, "SF Pro Display", "PingFang
   display: block;
 }
 
+/* ========== 裁剪弹窗 ========== */
+.crop-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+}
+.crop-overlay.show { display: flex; }
 
+.crop-container {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.crop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0));
+  background: #fff;
+  color: #1c1c1e;
+}
+
+.crop-cancel, .crop-confirm {
+  background: none;
+  border: none;
+  color: #1c1c1e;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  font-family: inherit;
+}
+.crop-cancel:active, .crop-confirm:active {
+  opacity: 0.5;
+}
+
+.crop-header span {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.crop-workspace {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+.crop-workspace img {
+  display: block;
+  max-width: 100%;
+}
+
+/* 覆盖 Cropper.js 自带的黑色背景 */
+.cropper-container {
+  background: #fff !important;
+}
+.cropper-bg {
+  background-image: none !important;
+  background: #fff !important;
+}
+.cropper-modal {
+  background: rgba(255,255,255,0.5) !important;
+}
