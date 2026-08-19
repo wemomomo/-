@@ -1,3 +1,4 @@
+
 * { 
   margin:0; 
   padding:0; 
@@ -186,7 +187,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
-  position: relative;
+  position: relative; /* ▼▼▼ 加上这个让 badge 相对于卡片定位 ▼▼▼ */
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   border: 1px solid #f0f0f0;
@@ -235,7 +236,7 @@ html, body {
 
 .message-badge {
   position: absolute;
-  top: -10px;
+  top: -10px; /* 现在这个 top 会生效了 */
   right: 10px;
   background: #f2f2f7;
   border-radius: 12px;
@@ -244,11 +245,14 @@ html, body {
   align-items: center;
   gap: 4px;
 }
+
 .badge-icon {
   width: 14px;
   height: 14px;
   color: #8e8e93;
+  position: relative;
 }
+
 .message-badge span {
   font-size: 10px;
   color: #8e8e93;
@@ -315,7 +319,6 @@ input:checked + label:before { transform: translateX(20px); }
   margin-top: 2px;
 }
 
-/* ▼▼▼ 遮罩改成透明 ▼▼▼ */
 .edit-panel-mask {
   position: fixed;
   inset: 0;
