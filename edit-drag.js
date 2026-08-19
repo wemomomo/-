@@ -1,11 +1,9 @@
-
 (function(){
   'use strict';
 
   var pageContainer = document.querySelector('.page-container');
   var editOverlay = document.getElementById('editOverlay');
   var editBtns = document.querySelectorAll('.edit-btn');
-  var draggables = document.querySelectorAll('.draggable');
   var appShell = document.querySelector('.app-shell');
   var resetLayoutBtn = document.getElementById('resetLayoutBtn');
 
@@ -23,7 +21,7 @@
   var touchStartX = 0;
   var touchStartY = 0;
 
-  // ▼▼▼ 初始排布顺序（按你 HTML 里的顺序） ▼▼▼
+  // ▼▼▼ 初始排布顺序（按你 HTML 里的原始顺序写） ▼▼▼
   var defaultOrder = ['card', 'message', 'icon-plot', 'icon-message', 'icon-explore', 'icon-vault'];
 
   // ============ 等待数据库就绪 ============
@@ -77,14 +75,13 @@
     resetLayoutBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       
-      // 确认对话框
       var confirmed = confirm('确定要恢复初始排布吗？');
       if (!confirmed) return;
       
       var page = document.querySelector('[data-page="home"]');
       if (!page) return;
       
-      // 按初始顺序重新排列
+      // 按 HTML 原始顺序恢复所有组件
       defaultOrder.forEach(function(componentName) {
         var el = page.querySelector('[data-component="' + componentName + '"]');
         if (el) {
@@ -95,7 +92,6 @@
       // 清空保存的顺序
       if (window.AppDB) {
         AppDB.delete('drag_order', function() {
-          // 可以加个提示
           alert('已恢复初始排布！');
         });
       }
@@ -187,6 +183,8 @@
   });
 
   // ============ 拖拽功能 ============
+  var draggables = document.querySelectorAll('.draggable');
+  
   draggables.forEach(function(el) {
     el.addEventListener('touchstart', function(e) {
       if (!isEditMode) return;
