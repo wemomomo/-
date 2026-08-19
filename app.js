@@ -3,7 +3,7 @@
   'use strict';
 
   // ============ IndexedDB 存储模块 ============
-  var DB_NAME = 'MoMoAppDB';
+  var DB_NAME = 'AppDB';
   var DB_VERSION = 1;
   var STORE_NAME = 'appData';
   var db = null;
