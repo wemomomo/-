@@ -39,7 +39,7 @@
 
   window.AppDB = { open: openDB, save: dbSave, get: dbGet, delete: dbDelete };
 
-  // ============ Canvas 裁剪器（直接搬自你验证过的项目） ============
+  // ============ Canvas 裁剪器 ============
   window.AppCropper = {
     open: function(src, options, callback) {
       var overlay = document.createElement('div');
@@ -66,11 +66,6 @@
 
       document.body.appendChild(overlay);
 
-      // 阻止所有事件冒泡到外部
-      overlay.addEventListener('touchstart', function(e) { e.stopPropagation(); }, true);
-      overlay.addEventListener('touchend', function(e) { e.stopPropagation(); }, true);
-      overlay.addEventListener('click', function(e) { e.stopPropagation(); }, true);
-
       var canvas = overlay.querySelector('#cropCanvas');
       var ctx = canvas.getContext('2d');
       var img = new Image();
@@ -90,6 +85,11 @@
         var workspace = overlay.querySelector('.crop-workspace');
         var maxW = workspace.clientWidth - 40;
         var maxH = workspace.clientHeight - 40;
+
+        if (maxW <= 0 || maxH <= 0) {
+          maxW = window.innerWidth - 40;
+          maxH = window.innerHeight - 200;
+        }
 
         scale = Math.min(maxW / img.width, maxH / img.height, 1);
         displayW = Math.round(img.width * scale);
@@ -116,7 +116,12 @@
         draw();
       };
 
-      img.src = src;
+      // 等浏览器完成渲染后再加载图片
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          img.src = src;
+        });
+      });
 
       function clampCrop() {
         crop.w = Math.max(MIN_SIZE, Math.min(displayW, crop.w));
@@ -151,23 +156,10 @@
 
         ctx.fillStyle = '#fff';
         var hs = 8;
-        var corners = [
-          [crop.x, crop.y],
-          [crop.x + crop.w, crop.y],
-          [crop.x, crop.y + crop.h],
-          [crop.x + crop.w, crop.y + crop.h]
-        ];
-        corners.forEach(function(c) {
+        [[crop.x, crop.y],[crop.x + crop.w, crop.y],[crop.x, crop.y + crop.h],[crop.x + crop.w, crop.y + crop.h]].forEach(function(c) {
           ctx.fillRect(c[0] - hs / 2, c[1] - hs / 2, hs, hs);
         });
-
-        var middles = [
-          [crop.x + crop.w / 2, crop.y],
-          [crop.x + crop.w / 2, crop.y + crop.h],
-          [crop.x, crop.y + crop.h / 2],
-          [crop.x + crop.w, crop.y + crop.h / 2]
-        ];
-        middles.forEach(function(m) {
+        [[crop.x + crop.w / 2, crop.y],[crop.x + crop.w / 2, crop.y + crop.h],[crop.x, crop.y + crop.h / 2],[crop.x + crop.w, crop.y + crop.h / 2]].forEach(function(m) {
           ctx.fillRect(m[0] - hs / 2, m[1] - hs / 2, hs, hs);
         });
       }
@@ -265,12 +257,12 @@
           );
           var diff = dist - lastDist;
           var ratio = crop.w / crop.h;
-          var cx = crop.x + crop.w / 2;
-          var cy = crop.y + crop.h / 2;
+          var cx2 = crop.x + crop.w / 2;
+          var cy2 = crop.y + crop.h / 2;
           crop.w = Math.max(MIN_SIZE, crop.w + diff);
           crop.h = Math.max(MIN_SIZE, crop.h + diff / ratio);
-          crop.x = cx - crop.w / 2;
-          crop.y = cy - crop.h / 2;
+          crop.x = cx2 - crop.w / 2;
+          crop.y = cy2 - crop.h / 2;
           clampCrop();
           lastDist = dist;
           draw();
@@ -289,25 +281,23 @@
           else if (r === '4:3') lockedRatio = 4 / 3;
           else if (r === '16:9') lockedRatio = 16 / 9;
           if (lockedRatio) {
-            var cx2 = crop.x + crop.w / 2;
-            var cy2 = crop.y + crop.h / 2;
+            var cx3 = crop.x + crop.w / 2;
+            var cy3 = crop.y + crop.h / 2;
             var newW = crop.w;
             var newH = newW / lockedRatio;
             if (newH > displayH * 0.9) { newH = displayH * 0.9; newW = newH * lockedRatio; }
             crop.w = newW; crop.h = newH;
-            crop.x = cx2 - crop.w / 2; crop.y = cy2 - crop.h / 2;
+            crop.x = cx3 - crop.w / 2; crop.y = cy3 - crop.h / 2;
             clampCrop(); draw();
           }
         });
       });
 
-      overlay.querySelector('.crop-cancel').addEventListener('click', function(e) {
-        e.stopPropagation();
+      overlay.querySelector('.crop-cancel').addEventListener('click', function() {
         overlay.remove();
       });
 
-      overlay.querySelector('.crop-confirm').addEventListener('click', function(e) {
-        e.stopPropagation();
+      overlay.querySelector('.crop-confirm').addEventListener('click', function() {
         var output = document.createElement('canvas');
         var outW = Math.round(crop.w / scale);
         var outH = Math.round(crop.h / scale);
