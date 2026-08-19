@@ -330,7 +330,13 @@
   var tabs = document.querySelectorAll('.tab-item');
   function showPage(name) { pages.forEach(function(p) { p.classList.toggle('active', p.dataset.page === name); }); }
   function setActiveTab(tab) { tabs.forEach(function(t) { t.classList.toggle('active', t === tab); }); }
-  tabs.forEach(function(tab) { tab.addEventListener('click', function() { showToast('开发中'); }); });
+  tabs.forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    var pageName = this.dataset.tab;
+    showPage(pageName);
+    setActiveTab(this);
+  });
+});
   window.AppNav = { showPage: showPage, setActiveTab: setActiveTab, showToast: showToast };
 
   // ============ 初始化 ============
