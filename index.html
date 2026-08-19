@@ -72,7 +72,7 @@
         </div>
       </div>
 
-     <div class="icons-row draggable" data-component="icons">
+      <div class="icons-row draggable" data-component="icons">
         <div class="app-icon-item" id="iconPlot">
           <div class="app-icon-glass" id="iconPlotImg">
             <div class="icon-image" data-icon="plot"></div>
@@ -133,6 +133,26 @@
         <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M6 21c0 0 1-4 6-9s9-6 9-6-1 4-6 9-9 6-9 6z"/><path d="M6 21c0-3 2-6 5-8"/></svg></div>
         <div class="tab-label">浮生</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- 裁剪器（预先放在页面里，默认隐藏） -->
+<div class="crop-overlay" id="cropOverlay">
+  <div class="crop-container">
+    <div class="crop-header">
+      <button class="crop-cancel" id="cropCancelBtn" type="button">取消</button>
+      <span>裁剪图片</span>
+      <button class="crop-confirm" id="cropConfirmBtn" type="button">确定</button>
+    </div>
+    <div class="crop-toolbar">
+      <button class="crop-ratio-btn active" data-ratio="free" type="button">自由</button>
+      <button class="crop-ratio-btn" data-ratio="1" type="button">1:1</button>
+      <button class="crop-ratio-btn" data-ratio="4:3" type="button">4:3</button>
+      <button class="crop-ratio-btn" data-ratio="16:9" type="button">16:9</button>
+    </div>
+    <div class="crop-workspace" id="cropWorkspace">
+      <canvas id="cropCanvas"></canvas>
     </div>
   </div>
 </div>
