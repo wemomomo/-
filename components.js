@@ -2,7 +2,6 @@
 (function(){
   'use strict';
 
-  // ============ 等待数据库就绪 ============
   window.addEventListener('dbReady', init);
 
   function init() {
@@ -20,28 +19,105 @@
     var infoTexts = document.querySelectorAll('.info-text[data-key]');
     var locationText = document.querySelector('.location-text');
 
-    // 文件输入
+    // --- 文件输入 ---
     var bgFileInput = document.createElement('input');
-    bgFileInput.type = 'file';
-    bgFileInput.accept = 'image/*';
-
+    bgFileInput.type = 'file'; bgFileInput.accept = 'image/*';
     var avatarFileInput = document.createElement('input');
-    avatarFileInput.type = 'file';
-    avatarFileInput.accept = 'image/*';
+    avatarFileInput.type = 'file'; avatarFileInput.accept = 'image/*';
 
-    // --- 平时可直接操作 ---
-    cardUpper.addEventListener('click', function() {
+    // --- 创建图片操作的专属气泡弹窗 ---
+    var photoPopup = document.createElement('div');
+    photoPopup.className = 'edit-popup';
+    photoPopup.id = 'photoEditPopup';
+    photoPopup.innerHTML = `
+      <div class="control-group" style="margin-bottom:0;">
+        <button class="action-btn" id="photoChangeBtn" style="border-color:#1c1c1e; color:#1c1c1e;">更换</button>
+        <button class="action-btn danger" id="photoDeleteBtn" style="border-color:#1c1c1e; color:#1c1c1e; background:#f5f5f5;">删除</button>
+      </div>
+    `;
+    document.body.appendChild(photoPopup);
+
+    var currentActionType = ''; // 记录当前操作的是 bg 还是 avatar
+
+    function showPhotoPopup(type, triggerElement) {
+      currentActionType = type;
+      var popup = document.getElementById('photoEditPopup');
+      var overlay = document.getElementById('editOverlay') || document.querySelector('.edit-overlay');
+      
+      if (overlay) overlay.classList.add('show');
+      popup.classList.add('show');
+
+      // 定位逻辑 (计算元素位置)
+      var rect = triggerElement.getBoundingClientRect();
+      var windowW = window.innerWidth;
+      var popupRect = popup.getBoundingClientRect();
+
+      var left = rect.left + rect.width / 2 - popupRect.width / 2;
+      var top = rect.bottom + 12;
+
+      popup.classList.remove('position-top', 'position-bottom');
+      if (top + popupRect.height > window.innerHeight - 50) {
+        top = rect.top - popupRect.height - 12;
+        popup.classList.add('position-top'); // 向上弹
+      } else {
+        popup.classList.add('position-bottom'); // 向下弹
+      }
+
+      if (left < 16) left = 16;
+      if (left + popupRect.width > windowW - 16) left = windowW - popupRect.width - 16;
+
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+    }
+
+    function hidePopups() {
+      document.querySelectorAll('.edit-popup').forEach(function(p) { p.classList.remove('show'); });
+      var overlay = document.getElementById('editOverlay') || document.querySelector('.edit-overlay');
+      if (overlay) overlay.classList.remove('show');
+    }
+
+    // 绑定隐藏事件
+    var overlay = document.getElementById('editOverlay') || document.querySelector('.edit-overlay');
+    if (overlay) overlay.addEventListener('click', hidePopups);
+
+    // --- 单击触发菜单 ---
+    cardUpper.addEventListener('click', function(e) {
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
-      bgFileInput.click();
+      e.stopPropagation();
+      showPhotoPopup('bg', cardUpper);
     });
 
     avatarBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
       if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
-      avatarFileInput.click();
+      e.stopPropagation();
+      showPhotoPopup('avatar', avatarBtn);
     });
 
-    // 背景图上传 + 裁剪
+    // 点击更换照片
+    document.getElementById('photoChangeBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopups();
+      if (currentActionType === 'bg') bgFileInput.click();
+      else if (currentActionType === 'avatar') avatarFileInput.click();
+    });
+
+    // 点击删除照片（彻底清理缓存数据）
+    document.getElementById('photoDeleteBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopups();
+      if (currentActionType === 'bg') {
+        cardBg.style.backgroundImage = '';
+        cardBg.classList.remove('has-bg');
+        if (window.AppDB) AppDB.delete('card_bg'); // 从数据库抹除
+      } else if (currentActionType === 'avatar') {
+        avatarImg.src = '';
+        avatarBtn.classList.remove('has-img');
+        if (window.AppDB) AppDB.delete('card_avatar'); // 从数据库抹除
+      }
+      saveCardState();
+    });
+
+    // --- 裁剪和保存逻辑 (新照片会覆盖抹除旧照片缓存) ---
     bgFileInput.addEventListener('change', function() {
       var file = this.files[0];
       if (!file) return;
@@ -51,9 +127,7 @@
           AppCropper.open(e.target.result, { aspectRatio: 16/11 }, function(croppedData) {
             cardBg.style.backgroundImage = 'url(' + croppedData + ')';
             cardBg.classList.add('has-bg');
-            if (window.AppDB) {
-              AppDB.save('card_bg', croppedData);
-            }
+            if (window.AppDB) AppDB.save('card_bg', croppedData);
             saveCardState();
           });
         }
@@ -62,7 +136,6 @@
       this.value = '';
     });
 
-    // 头像上传 + 裁剪
     avatarFileInput.addEventListener('change', function() {
       var file = this.files[0];
       if (!file) return;
@@ -72,9 +145,7 @@
           AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
             avatarImg.src = croppedData;
             avatarBtn.classList.add('has-img');
-            if (window.AppDB) {
-              AppDB.save('card_avatar', croppedData);
-            }
+            if (window.AppDB) AppDB.save('card_avatar', croppedData);
             saveCardState();
           });
         }
@@ -83,15 +154,10 @@
       this.value = '';
     });
 
-    // 文字保存
-    infoTexts.forEach(function(el) {
-      el.addEventListener('blur', saveCardState);
-    });
-    if (locationText) {
-      locationText.addEventListener('blur', saveCardState);
-    }
+    infoTexts.forEach(function(el) { el.addEventListener('blur', saveCardState); });
+    if (locationText) locationText.addEventListener('blur', saveCardState);
 
-    // --- 编辑按钮功能（点击弹出编辑面板） ---
+    // --- 纯粹的样式编辑面板 ---
     var cardEditBtn = document.querySelector('[data-edit-target="card"]');
     if (cardEditBtn) {
       cardEditBtn.addEventListener('click', function(e) {
@@ -101,14 +167,12 @@
     }
 
     function openCardEditPanel() {
-      // 创建编辑面板（如果不存在）
       var panel = document.getElementById('cardEditPanel');
       if (!panel) {
         panel = createCardEditPanel();
         document.body.appendChild(panel);
       }
       panel.classList.add('show');
-      
       var mask = document.getElementById('cardEditMask');
       if (!mask) {
         mask = document.createElement('div');
@@ -123,10 +187,8 @@
     function closeCardEditPanel() {
       var panel = document.getElementById('cardEditPanel');
       if (panel) panel.classList.remove('show');
-      
       var mask = document.getElementById('cardEditMask');
       if (mask) mask.classList.remove('show');
-      
       saveCardState();
     }
 
@@ -138,17 +200,6 @@
         <div class="edit-panel-handle"></div>
         <div class="edit-panel-content">
           <div class="panel-title">卡片设置</div>
-          
-          <div class="control-group">
-            <button class="action-btn" id="uploadBgBtn">更换背景</button>
-            <button class="action-btn danger" id="deleteBgBtn">删除背景</button>
-          </div>
-          
-          <div class="control-group">
-            <button class="action-btn" id="uploadAvatarBtn">更换头像</button>
-            <button class="action-btn danger" id="deleteAvatarBtn">删除头像</button>
-          </div>
-          
           <div class="control-row">
             <span class="control-label">毛玻璃</span>
             <div class="toggle-switch">
@@ -156,48 +207,25 @@
               <label for="cardGlassToggle"></label>
             </div>
           </div>
-          
           <div class="control-row">
             <span class="control-label">背景颜色</span>
             <input type="color" id="cardColorPicker" value="#ffffff">
           </div>
-          
           <div class="control-row">
             <span class="control-label">透明度</span>
             <input type="range" id="cardOpacitySlider" min="0" max="100" value="80">
             <span class="opacity-value" id="cardOpacityValue">80%</span>
           </div>
-          
-          <button class="done-btn" id="cardDoneBtn">完成</button>
+          <button class="done-btn" id="cardDoneBtn" style="background:#1c1c1e; color:white;">完成</button>
         </div>
       `;
       
-      // 绑定面板内的事件
       setTimeout(function() {
-        document.getElementById('uploadBgBtn').addEventListener('click', function() { bgFileInput.click(); });
-        document.getElementById('uploadAvatarBtn').addEventListener('click', function() { avatarFileInput.click(); });
-        
-        document.getElementById('deleteBgBtn').addEventListener('click', function() {
-          cardBg.style.backgroundImage = '';
-          cardBg.classList.remove('has-bg');
-          if (window.AppDB) AppDB.delete('card_bg');
-          saveCardState();
-        });
-        
-        document.getElementById('deleteAvatarBtn').addEventListener('click', function() {
-          avatarImg.src = '';
-          avatarBtn.classList.remove('has-img');
-          if (window.AppDB) AppDB.delete('card_avatar');
-          saveCardState();
-        });
-        
         document.getElementById('cardGlassToggle').addEventListener('change', applyCardOverlay);
         document.getElementById('cardColorPicker').addEventListener('input', applyCardOverlay);
         document.getElementById('cardOpacitySlider').addEventListener('input', applyCardOverlay);
-        
         document.getElementById('cardDoneBtn').addEventListener('click', closeCardEditPanel);
       }, 0);
-      
       return panel;
     }
 
@@ -208,29 +236,19 @@
       var opacityValue = document.getElementById('cardOpacityValue');
       
       if (!colorPicker || !opacitySlider || !glassToggle) return;
-      
       var color = colorPicker.value;
       var opacity = opacitySlider.value / 100;
       opacityValue.textContent = opacitySlider.value + '%';
-
-      var r = parseInt(color.slice(1,3), 16);
-      var g = parseInt(color.slice(3,5), 16);
-      var b = parseInt(color.slice(5,7), 16);
-
+      var r = parseInt(color.slice(1,3), 16), g = parseInt(color.slice(3,5), 16), b = parseInt(color.slice(5,7), 16);
       lowerOverlay.style.backgroundColor = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
-
-      if (glassToggle.checked) {
-        lowerOverlay.classList.add('glass-effect');
-      } else {
-        lowerOverlay.classList.remove('glass-effect');
-      }
+      if (glassToggle.checked) lowerOverlay.classList.add('glass-effect');
+      else lowerOverlay.classList.remove('glass-effect');
     }
 
     function saveCardState() {
       var glassToggle = document.getElementById('cardGlassToggle');
       var colorPicker = document.getElementById('cardColorPicker');
       var opacitySlider = document.getElementById('cardOpacitySlider');
-      
       var state = {
         hasBg: cardBg.classList.contains('has-bg'),
         hasAvatar: avatarBtn.classList.contains('has-img'),
@@ -241,60 +259,35 @@
           opacity: opacitySlider ? opacitySlider.value : 80
         }
       };
-
       infoTexts.forEach(function(el) {
         var key = el.dataset.key;
-        if (key !== 'line4') {
-          state.texts[key] = el.textContent.trim();
-        }
+        if (key !== 'line4') state.texts[key] = el.textContent.trim();
       });
       state.texts['line4text'] = locationText ? locationText.textContent.trim() : '';
-
-      if (window.AppDB) {
-        AppDB.save('card_state', state);
-      }
+      if (window.AppDB) AppDB.save('card_state', state);
     }
 
     function loadCardState() {
-      // 加载图片数据
       if (window.AppDB) {
         AppDB.get('card_bg', function(bgData) {
-          if (bgData) {
-            cardBg.style.backgroundImage = 'url(' + bgData + ')';
-            cardBg.classList.add('has-bg');
-          }
+          if (bgData) { cardBg.style.backgroundImage = 'url(' + bgData + ')'; cardBg.classList.add('has-bg'); }
         });
-
         AppDB.get('card_avatar', function(avatarData) {
-          if (avatarData) {
-            avatarImg.src = avatarData;
-            avatarBtn.classList.add('has-img');
-          }
+          if (avatarData) { avatarImg.src = avatarData; avatarBtn.classList.add('has-img'); }
         });
-
-        // 加载状态
         AppDB.get('card_state', function(state) {
           if (!state) return;
-
-          // 恢复文字
           if (state.texts) {
             Object.keys(state.texts).forEach(function(key) {
-              if (key === 'line4text') {
-                if (locationText) locationText.textContent = state.texts[key];
-              } else {
-                var el = document.querySelector('[data-key="' + key + '"]');
-                if (el) el.textContent = state.texts[key];
-              }
+              if (key === 'line4text') { if (locationText) locationText.textContent = state.texts[key]; }
+              else { var el = document.querySelector('[data-key="' + key + '"]'); if (el) el.textContent = state.texts[key]; }
             });
           }
-
-          // 恢复样式（仅在面板存在时）
           var panel = document.getElementById('cardEditPanel');
           if (panel && state.style) {
             var glassToggle = document.getElementById('cardGlassToggle');
             var colorPicker = document.getElementById('cardColorPicker');
             var opacitySlider = document.getElementById('cardOpacitySlider');
-            
             if (glassToggle) glassToggle.checked = state.style.glass;
             if (colorPicker) colorPicker.value = state.style.color;
             if (opacitySlider) opacitySlider.value = state.style.opacity;
@@ -303,7 +296,6 @@
         });
       }
     }
-
     loadCardState();
   }
 
@@ -313,18 +305,67 @@
     var messageAvatar = document.getElementById('messageAvatar');
     var messageAvatarImg = document.getElementById('messageAvatarImg');
     var messagePreview = document.getElementById('messagePreview');
-    
-    // 消息头像上传
     var avatarFileInput = document.createElement('input');
-    avatarFileInput.type = 'file';
-    avatarFileInput.accept = 'image/*';
+    avatarFileInput.type = 'file'; avatarFileInput.accept = 'image/*';
     
+    // 给消息头像也加上气泡弹窗逻辑
+    var msgPhotoPopup = document.createElement('div');
+    msgPhotoPopup.className = 'edit-popup';
+    msgPhotoPopup.id = 'msgPhotoEditPopup';
+    msgPhotoPopup.innerHTML = `
+      <div class="control-group" style="margin-bottom:0;">
+        <button class="action-btn" id="msgPhotoChangeBtn" style="border-color:#1c1c1e; color:#1c1c1e;">更换</button>
+        <button class="action-btn danger" id="msgPhotoDeleteBtn" style="border-color:#1c1c1e; color:#1c1c1e; background:#f5f5f5;">删除</button>
+      </div>
+    `;
+    document.body.appendChild(msgPhotoPopup);
+
+    function showMsgPopup() {
+      var overlay = document.getElementById('editOverlay') || document.querySelector('.edit-overlay');
+      if (overlay) overlay.classList.add('show');
+      msgPhotoPopup.classList.add('show');
+      var rect = messageAvatar.getBoundingClientRect();
+      var popupRect = msgPhotoPopup.getBoundingClientRect();
+      var top = rect.bottom + 12;
+      var left = rect.left + rect.width / 2 - popupRect.width / 2;
+      
+      msgPhotoPopup.classList.remove('position-top', 'position-bottom');
+      if (top + popupRect.height > window.innerHeight - 50) {
+        top = rect.top - popupRect.height - 12;
+        msgPhotoPopup.classList.add('position-top');
+      } else {
+        msgPhotoPopup.classList.add('position-bottom');
+      }
+      msgPhotoPopup.style.left = left + 'px';
+      msgPhotoPopup.style.top = top + 'px';
+    }
+
     if (messageAvatar) {
       messageAvatar.addEventListener('click', function(e) {
         e.stopPropagation();
-        avatarFileInput.click();
+        if (document.querySelector('.app-shell').classList.contains('edit-mode')) return;
+        showMsgPopup();
       });
     }
+
+    document.getElementById('msgPhotoChangeBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      msgPhotoPopup.classList.remove('show');
+      var overlay = document.getElementById('editOverlay') || document.querySelector('.edit-overlay');
+      if (overlay) overlay.classList.remove('show');
+      avatarFileInput.click();
+    });
+
+    document.getElementById('msgPhotoDeleteBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      msgPhotoPopup.classList.remove('show');
+      var overlay = document.getElementById('editOverlay') || document.querySelector('.edit-overlay');
+      if (overlay) overlay.classList.remove('show');
+      
+      messageAvatarImg.src = '';
+      messageAvatar.classList.remove('has-img');
+      if (window.AppDB) AppDB.delete('message_avatar'); // 从数据库彻底抹除
+    });
     
     avatarFileInput.addEventListener('change', function() {
       var file = this.files[0];
@@ -335,9 +376,7 @@
           AppCropper.open(e.target.result, { aspectRatio: 1 }, function(croppedData) {
             messageAvatarImg.src = croppedData;
             messageAvatar.classList.add('has-img');
-            if (window.AppDB) {
-              AppDB.save('message_avatar', croppedData);
-            }
+            if (window.AppDB) AppDB.save('message_avatar', croppedData);
           });
         }
       };
@@ -345,29 +384,18 @@
       this.value = '';
     });
     
-    // 加载消息头像
     if (window.AppDB) {
       AppDB.get('message_avatar', function(data) {
-        if (data && messageAvatarImg) {
-          messageAvatarImg.src = data;
-          messageAvatar.classList.add('has-img');
-        }
+        if (data && messageAvatarImg) { messageAvatarImg.src = data; messageAvatar.classList.add('has-img'); }
       });
-      
-      // 加载消息文本
       AppDB.get('message_preview', function(text) {
-        if (text && messagePreview) {
-          messagePreview.textContent = text;
-        }
+        if (text && messagePreview) { messagePreview.textContent = text; }
       });
     }
     
-    // 保存消息文本
     if (messagePreview) {
       messagePreview.addEventListener('blur', function() {
-        if (window.AppDB) {
-          AppDB.save('message_preview', this.textContent.trim());
-        }
+        if (window.AppDB) AppDB.save('message_preview', this.textContent.trim());
       });
     }
   }
