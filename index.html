@@ -12,20 +12,51 @@
   <div class="page-container">
 
     <div class="page active" data-page="home">
-    <div class="profile-section">
-  <div class="profile-col">
-    <div class="capsule" contenteditable="true" data-placeholder="昵称" data-key="cap1"></div>
-    <div class="capsule" contenteditable="true" data-placeholder="属性" data-key="cap2"></div>
-  </div>
-  <div class="profile-avatar" id="avatarBtn">
-    <img id="avatarImg" alt="头像">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-  </div>
-  <div class="profile-col">
-    <div class="capsule" contenteditable="true" data-placeholder="签名" data-key="cap3"></div>
-    <div class="capsule" contenteditable="true" data-placeholder="状态" data-key="cap4"></div>
-  </div>
-</div>
+      
+      <div class="profile-card" id="profileCard">
+        
+        <!-- 卡片上半部分，背景图区域 -->
+        <div class="card-header" id="cardHeader">
+        </div>
+
+        <!-- 卡片下半部分，信息区域 -->
+        <div class="card-body" id="cardBody">
+          <div class="info-text line-1" contenteditable="false" data-key="line1" data-placeholder="姓名"></div>
+          <div class="info-text line-2" contenteditable="false" data-key="line2" data-placeholder="身份/称号"></div>
+          <div class="info-text line-3" contenteditable="false" data-key="line3" data-placeholder="签名/心情"></div>
+          <div class="info-text line-4" contenteditable="false" data-key="line4" data-placeholder="当前位置">
+            <svg class="location-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span class="location-text"></span>
+          </div>
+        </div>
+
+        <!-- 中间的圆形头像 -->
+        <div class="avatar-wrapper" id="avatarBtn">
+          <img id="avatarImg" alt="头像">
+          <svg class="avatar-placeholder" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        </div>
+
+        <!-- 编辑模式下的控件 -->
+        <div class="edit-controls" id="editControls">
+            <div class="control-group">
+                <label>背景模糊</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="glassToggle">
+                    <label for="glassToggle"></label>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>背景颜色</label>
+                <input type="color" id="colorPicker" value="#f0f0f0">
+            </div>
+            <div class="control-group range-group">
+                <label>透明度</label>
+                <input type="range" id="opacitySlider" min="0" max="1" step="0.05">
+            </div>
+            <button id="doneEditBtn">完成</button>
+        </div>
+
+      </div>
 
       <div class="photo-row">
         <div class="photo-frame" data-photo="0">
@@ -95,7 +126,7 @@
     </div>
     <div class="tab-item" data-tab="settings">
       <div class="tab-icon">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
       </div>
       <div class="tab-label">设置</div>
     </div>
