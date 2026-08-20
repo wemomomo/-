@@ -330,20 +330,20 @@
   var dock = document.querySelector('.tab-bar');
   var dockEditBtn = document.querySelector('.tabbar-edit-btn');
 
-  // 初始化 App 空壳：注入标题栏和内容区
-  function initAppShells() {
+   function initAppShells() {
     var appPages = ['wechat', 'offline', 'settings', 'check'];
     appPages.forEach(function(name) {
       var page = document.querySelector('[data-page="' + name + '"]');
-      if (!page || page.querySelector('.page-header-simple')) return; // 已初始化就跳过
+      if (!page || page.querySelector('.app-header')) return; // 已初始化就跳过
 
       var titleText = { wechat: '微信', offline: '线下', settings: '设置', check: '查岗' }[name];
       
+      // 新结构：头部容器包含返回按钮和标题，在同一行
       page.innerHTML = 
-        '<div class="page-header-simple">' +
+        '<div class="app-header">' +
           '<button class="icon-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+          '<div class="app-title">' + titleText + '</div>' +
         '</div>' +
-        '<div class="page-title">' + titleText + '</div>' +
         '<div class="app-content" id="' + name + 'Content"></div>';
     });
 
@@ -384,10 +384,10 @@
       subPage.className = 'page app-page';
       subPage.dataset.page = sub.name;
       subPage.innerHTML = 
-        '<div class="page-header-simple">' +
+        '<div class="app-header">' +
           '<button class="icon-back-btn" data-back="' + sub.back + '"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+          '<div class="app-title">' + sub.title + '</div>' +
         '</div>' +
-        '<div class="page-title">' + sub.title + '</div>' +
         '<div class="app-content" id="' + sub.name + 'PageContent"></div>';
       document.getElementById('pageContainer').appendChild(subPage);
     });
