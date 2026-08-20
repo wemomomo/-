@@ -16,20 +16,10 @@
 <body>
 
 <div class="app-shell">
-  <div class="page-container">
-
-    <button class="reset-layout-btn" id="resetLayoutBtn">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-        <path d="M21 3v5h-5"/>
-        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-        <path d="M3 21v-5h5"/>
-      </svg>
-      <span>恢复初始</span>
-    </button>
-
+  <div class="page-container" id="pageContainer">
+    
+    <!-- 桌面 (Home) -->
     <div class="page active" data-page="home">
-
       <div class="profile-card draggable" id="profileCard" data-component="card">
         <div class="card-bg" id="cardBg"></div>
         <div class="card-upper" id="cardUpper"></div>
@@ -41,8 +31,8 @@
           </div>
           <div class="info-area">
             <div class="info-text line-1" contenteditable="true" data-key="line1" data-placeholder="姓名"></div>
-            <div class="info-text line-2" contenteditable="true" data-key="line2" data-placeholder="称号"></div>
-            <div class="info-text line-3" contenteditable="true" data-key="line3" data-placeholder="签名"></div>
+            <div class="info-text line-2" contenteditable="true" data-key="line2" data-placeholder="身份/称号"></div>
+            <div class="info-text line-3" contenteditable="true" data-key="line3" data-placeholder="签名/心情"></div>
             <div class="info-text line-4">
               <svg class="location-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               <span class="location-text" contenteditable="true"></span>
@@ -58,7 +48,7 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
         </div>
         <div class="message-content">
-          <div class="message-preview" id="messagePreview" contenteditable="true">暂无消息</div>
+          <div class="message-preview" id="messagePreview" contenteditable="true">点击编辑消息内容...</div>
         </div>
         <div class="message-badge">
           <svg class="badge-icon" viewBox="0 0 20 22">
@@ -68,7 +58,7 @@
             <circle cx="10" cy="8" r="1" fill="currentColor"/>
             <circle cx="14" cy="8" r="1" fill="currentColor"/>
           </svg>
-          <span id="messageBadgeText">new message</span>
+          <span id="messageBadgeText">最新讯息</span>
         </div>
       </div>
 
@@ -102,42 +92,77 @@
           <div class="app-icon-label" id="iconVaultLabel">宝阁</div>
         </div>
       </div>
-
     </div>
 
-    <div class="page" data-page="wechat"><div class="page-title">微信</div></div>
-    <div class="page" data-page="offline"><div class="page-title">线下</div></div>
-    <div class="page" data-page="settings">
-      <div class="page-title">设置</div>
-      <div class="settings-list">
-        <div class="settings-item" id="settingApi">
-          <div class="settings-item-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <!-- 微信 App -->
+    <div class="page app-page" data-page="wechat">
+      <div class="app-header"><button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button><div class="app-title">微信</div></div>
+      <div class="app-content"></div>
+    </div>
+
+    <!-- 线下 App -->
+    <div class="page app-page" data-page="offline">
+      <div class="app-header"><button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button><div class="app-title">线下</div></div>
+      <div class="app-content"></div>
+    </div>
+
+    <!-- 设置 App -->
+    <div class="page app-page" data-page="settings">
+      <div class="app-header">
+        <button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button>
+        <div class="app-title">设置</div>
+      </div>
+      <div class="app-content">
+        <div class="settings-list">
+          <div class="settings-item" data-goto="api">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">API 配置</div>
+              <div class="settings-item-desc">管理接口密钥与模型设置</div>
+            </div>
+            <svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
           </div>
-          <div class="settings-item-text">
-            <div class="settings-item-title">API 配置</div>
-            <div class="settings-item-desc">管理接口密钥与模型设置</div>
+          <div class="settings-item" data-goto="data">
+            <div class="settings-item-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">数据</div>
+              <div class="settings-item-desc">导入导出与清除本地数据</div>
+            </div>
+            <svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
           </div>
-          <svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="settings-item" id="settingData">
-          <div class="settings-item-icon">
-            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          </div>
-          <div class="settings-item-text">
-            <div class="settings-item-title">数据</div>
-            <div class="settings-item-desc">导入导出与清除本地数据</div>
-          </div>
-          <svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </div>
     </div>
-    <div class="page" data-page="check"><div class="page-title">查岗</div></div>
+
+    <!-- API App (设置的子级) -->
+    <div class="page app-page" data-page="api">
+      <div class="app-header">
+        <button class="app-back-btn" data-back="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 设置</button>
+        <div class="app-title">API 配置</div>
+      </div>
+      <div class="app-content" id="apiPageContent"></div>
+    </div>
+
+    <!-- Data App (设置的子级) -->
+    <div class="page app-page" data-page="data">
+      <div class="app-header">
+        <button class="app-back-btn" data-back="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 设置</button>
+        <div class="app-title">数据</div>
+      </div>
+      <div class="app-content" id="dataPageContent"></div>
+    </div>
+
+    <!-- 查岗 App -->
+    <div class="page app-page" data-page="check">
+      <div class="app-header"><button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button><div class="app-title">查岗</div></div>
+      <div class="app-content"></div>
+    </div>
+
   </div>
 
-  <!-- 底部栏编辑按钮 -->
   <button class="edit-btn tabbar-edit-btn" data-edit-target="tabbar">编辑</button>
 
+  <!-- 桌面 Dock 栏 -->
   <div class="tab-bar">
     <div class="tab-bar-capsule">
             <div class="tab-item" data-tab="wechat">
