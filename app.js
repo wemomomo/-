@@ -325,19 +325,84 @@
     }, 1500);
   }
 
-  // ============ 页面导航 ============
+  // ============ 页面导航 (桌面与App模式) ============
   var pages = document.querySelectorAll('.page');
-  var tabs = document.querySelectorAll('.tab-item');
-  function showPage(name) { pages.forEach(function(p) { p.classList.toggle('active', p.dataset.page === name); }); }
-  function setActiveTab(tab) { tabs.forEach(function(t) { t.classList.toggle('active', t === tab); }); }
-  tabs.forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    var pageName = this.dataset.tab;
-    showPage(pageName);
-    setActiveTab(this);
+  var dock = document.querySelector('.tab-bar');
+  var dockEditBtn = document.querySelector('.tabbar-edit-btn');
+  var appShell = document.querySelector('.app-shell');
+
+  function showPage(name) {
+    pages.forEach(function(p) {
+      if (p.dataset.page === name) {
+        p.classList.add('active');
+        p.style.transform = ''; // 重置滑动状态
+      } else {
+        p.classList.remove('active');
+      }
+    });
+
+    // 如果回到桌面(home)，显示 Dock 栏
+    if (name === 'home') {
+      if (dock) dock.style.display = 'flex';
+      if (dockEditBtn && appShell.classList.contains('edit-mode')) {
+        dockEditBtn.style.display = 'block';
+      }
+    } else {
+      // 进入任何 App，隐藏 Dock 栏
+      if (dock) dock.style.display = 'none';
+      if (dockEditBtn) dockEditBtn.style.display = 'none';
+    }
+  }
+
+  // 点击 Dock 栏 -> 打开 App
+  document.querySelectorAll('.tab-item').forEach(function(tab) {
+    tab.addEventListener('click', function() { showPage(this.dataset.tab); });
   });
-});
-  window.AppNav = { showPage: showPage, setActiveTab: setActiveTab, showToast: showToast };
+
+  // App 内部跳转 (例如: 设置 -> API)
+  document.querySelectorAll('[data-goto]').forEach(function(btn) {
+    btn.addEventListener('click', function() { showPage(this.dataset.goto); });
+  });
+
+  // App 返回按钮 (例如: API -> 设置, 设置 -> 桌面)
+  document.querySelectorAll('[data-back]').forEach(function(btn) {
+    btn.addEventListener('click', function() { showPage(this.dataset.back); });
+  });
+
+  // 原生级：边缘右滑返回逻辑
+  document.querySelectorAll('.app-page').forEach(function(page) {
+    var startX = 0, currentX = 0, isDragging = false;
+    var backBtn = page.querySelector('[data-back]');
+    if (!backBtn) return;
+
+    page.addEventListener('touchstart', function(e) {
+      if (e.touches[0].clientX > 40) return; // 必须从屏幕极左边缘滑才有效防误触
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      page.style.transition = 'none';
+    }, { passive: true });
+
+    page.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      currentX = e.touches[0].clientX - startX;
+      if (currentX > 0) page.style.transform = 'translateX(' + currentX + 'px)';
+    }, { passive: true });
+
+    page.addEventListener('touchend', function() {
+      if (!isDragging) return;
+      isDragging = false;
+      page.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      // 划过 30% 屏幕宽度就执行返回，否则弹回
+      if (currentX > window.innerWidth * 0.3) {
+        showPage(backBtn.dataset.back);
+        setTimeout(function() { page.style.transform = ''; }, 300); // 隐藏后复位
+      } else {
+        page.style.transform = 'translateX(0)';
+      }
+    });
+  });
+
+  window.AppNav = { showPage: showPage, showToast: showToast };
 
   // ============ 初始化 ============
   openDB(function() {
