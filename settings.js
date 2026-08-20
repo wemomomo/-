@@ -2,7 +2,6 @@
   'use strict';
 
   var PARAM_DEFAULTS = { temperature: 0.8, freqPenalty: 0.3, presPenalty: 0.3 };
-
   var apiConfigs = [];
   var activeApi = null;
   var apiParams = null; 
@@ -10,62 +9,16 @@
   var editingIdx = -1;
 
   window.addEventListener('dbReady', function() {
-    initSettingsApp(); // 页面加载时，自动生成设置页内部排版
-    loadApiData();
+    loadApiData(function() {
+      renderApiBody();
+      renderDataBody();
+    });
   });
 
-  // ============ 1. 动态生成设置主页面 (不再依赖 HTML 硬编码) ============
-  function initSettingsApp() {
-    var settingsPage = document.querySelector('[data-page="settings"]');
-    if (!settingsPage) return;
+  function renderApiBody() {
+    var body = document.getElementById('apiPageContent');
+    if (!body) return;
 
-    // 用 JS 动态把排版画进去，HTML 就可以保持干净了！
-    settingsPage.innerHTML = 
-      '<div class="page-header-simple">' +
-        '<button class="icon-back-btn" id="settingsBackHome"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>' +
-      '</div>' +
-      '<div class="page-title">设置</div>' +
-      '<div class="app-content">' +
-        '<div class="settings-list">' +
-          '<div class="settings-item" id="btnGoApi">' +
-            '<div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>' +
-            '<div class="settings-item-text">' +
-              '<div class="settings-item-title">API 配置</div>' +
-              '<div class="settings-item-desc">管理接口密钥与模型设置</div>' +
-            '</div>' +
-            '<svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>' +
-          '</div>' +
-          '<div class="settings-item" id="btnGoData">' +
-            '<div class="settings-item-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>' +
-            '<div class="settings-item-text">' +
-              '<div class="settings-item-title">数据</div>' +
-              '<div class="settings-item-desc">导入导出与清除本地数据</div>' +
-            '</div>' +
-            '<svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-
-    // 绑定点击事件
-    settingsPage.querySelector('#btnGoApi').addEventListener('click', openApiPage);
-    settingsPage.querySelector('#btnGoData').addEventListener('click', openDataPage);
-    settingsPage.querySelector('#settingsBackHome').addEventListener('click', function() {
-      if (window.AppNav) AppNav.showPage('home');
-    });
-  }
-
-  // ============ API 配置子页 ============
-  function openApiPage() {
-    loadApiData(function() {
-      currentTab = 'config';
-      editingIdx = -1;
-      var page = createSubpage('API 配置');
-      renderApiBody(page.querySelector('.settings-subpage-body'));
-      setTimeout(function() { page.classList.add('show'); }, 10);
-    });
-  }
-
-  function renderApiBody(body) {
     var tabsHtml = '<div class="api-tabs">'
       + '<div class="api-tab' + (currentTab === 'config' ? ' active' : '') + '" data-tab="config">配置</div>'
       + '<div class="api-tab' + (currentTab === 'params' ? ' active' : '') + '" data-tab="params">参数</div>'
@@ -84,17 +37,15 @@
         + '<div class="api-field"><div class="api-field-label">模型</div><div class="api-field-row"><input type="text" class="api-input" id="apiModel" placeholder="gpt-4o" value="' + esc(cfg ? cfg.model : '') + '"><button class="api-icon-btn" id="apiFetchModels" type="button"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.22-8.56"/><path d="M21 3v6h-6"/></svg></button></div><div class="api-model-list" id="apiModelList"></div></div>'
         + '</div>'
         + '<div class="api-btn-group"><button class="api-btn api-btn-primary" id="apiSaveBtn" type="button">保存配置</button></div>';
-
     } else if (currentTab === 'params') {
       var params = getParams();
       contentHtml = '<div class="api-section">'
         + '<div class="api-section-title">模型参数</div>'
-        + '<div class="api-param-card"><div class="api-param-title">Temperature</div><div class="api-param-desc">越低越精确贴合，越高越有创意</div><div class="api-param-row"><input type="range" id="apiTemp" min="0" max="2" step="0.05" value="' + params.temperature + '"><span class="api-param-val" id="apiTempVal">' + params.temperature + '</span></div></div>'
+        + '<div class="api-param-card"><div class="api-param-title">Temperature</div><div class="api-param-desc">越低越精确，越高越有创意</div><div class="api-param-row"><input type="range" id="apiTemp" min="0" max="2" step="0.05" value="' + params.temperature + '"><span class="api-param-val" id="apiTempVal">' + params.temperature + '</span></div></div>'
         + '<div class="api-param-card"><div class="api-param-title">Frequency Penalty</div><div class="api-param-desc">避免重复使用相同词汇</div><div class="api-param-row"><input type="range" id="apiFreq" min="0" max="2" step="0.1" value="' + params.freqPenalty + '"><span class="api-param-val" id="apiFreqVal">' + params.freqPenalty + '</span></div></div>'
         + '<div class="api-param-card"><div class="api-param-title">Presence Penalty</div><div class="api-param-desc">鼓励使用新的话题</div><div class="api-param-row"><input type="range" id="apiPres" min="0" max="2" step="0.1" value="' + params.presPenalty + '"><span class="api-param-val" id="apiPresVal">' + params.presPenalty + '</span></div></div>'
         + '</div>'
         + '<div class="api-btn-group"><button class="api-btn api-btn-primary" id="apiSaveParamsBtn" type="button">保存参数</button></div>';
-
     } else if (currentTab === 'saved') {
       if (!apiConfigs.length) {
         contentHtml = '<div class="api-empty">暂无已存配置</div>';
@@ -119,11 +70,7 @@
 
   function bindApiEvents(body) {
     body.querySelectorAll('.api-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        currentTab = this.dataset.tab;
-        editingIdx = -1;
-        renderApiBody(body);
-      });
+      tab.addEventListener('click', function() { currentTab = this.dataset.tab; editingIdx = -1; renderApiBody(); });
     });
 
     if (currentTab === 'config') {
@@ -154,12 +101,11 @@
           if (!activeApi) activeApi = config;
           saveApiData();
           editingIdx = -1;
-          if(window.AppNav) AppNav.showToast('已保存');
+          AppNav.showToast('已保存');
           currentTab = 'saved';
-          renderApiBody(body);
+          renderApiBody();
         });
       }
-
     } else if (currentTab === 'params') {
       bindRange(body, 'apiTemp', 'apiTempVal');
       bindRange(body, 'apiFreq', 'apiFreqVal');
@@ -173,36 +119,33 @@
             presPenalty: parseFloat(body.querySelector('#apiPres').value)
           };
           apiParams = params;
-          if(window.AppDB) AppDB.save('api_params', params);
-          if(window.AppNav) AppNav.showToast('参数已保存');
+          AppDB.save('api_params', params);
+          AppNav.showToast('参数已保存');
         });
       }
-
     } else if (currentTab === 'saved') {
       body.querySelectorAll('.api-saved-act.use').forEach(function(btn) {
         btn.addEventListener('click', function() {
           activeApi = apiConfigs[parseInt(this.dataset.idx)];
           saveApiData();
-          if(window.AppNav) AppNav.showToast('已切换: ' + activeApi.name);
-          renderApiBody(body);
+          AppNav.showToast('已切换: ' + activeApi.name);
+          renderApiBody();
         });
       });
       body.querySelectorAll('.api-saved-act.edit').forEach(function(btn) {
         btn.addEventListener('click', function() {
           editingIdx = parseInt(this.dataset.idx);
           currentTab = 'config';
-          renderApiBody(body);
+          renderApiBody();
         });
       });
       body.querySelectorAll('.api-saved-act.delete').forEach(function(btn) {
         btn.addEventListener('click', function() {
           var removed = apiConfigs.splice(parseInt(this.dataset.idx), 1)[0];
-          if (activeApi && removed && activeApi.name === removed.name) {
-            activeApi = apiConfigs.length ? apiConfigs[0] : null;
-          }
+          if (activeApi && removed && activeApi.name === removed.name) { activeApi = apiConfigs.length ? apiConfigs[0] : null; }
           saveApiData();
-          if(window.AppNav) AppNav.showToast('已删除');
-          renderApiBody(body);
+          AppNav.showToast('已删除');
+          renderApiBody();
         });
       });
     }
@@ -211,76 +154,46 @@
   function fetchModels(body) {
     var url = (body.querySelector('#apiUrl').value || '').trim();
     var key = (body.querySelector('#apiKey').value || '').trim();
-    if (!url || !key) { if(window.AppNav) AppNav.showToast('请先填写地址和Key'); return; }
-
-    if(window.AppNav) AppNav.showToast('获取模型中...');
-
-    fetch(url.replace(/\/+$/, '') + '/models', {
-      headers: { 'Authorization': 'Bearer ' + key }
-    }).then(function(res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.json();
-    }).then(function(data) {
-      var raw = data.data || data;
-      var models = [];
-      if (Array.isArray(raw)) {
-        for (var i = 0; i < raw.length; i++) {
-          var id = raw[i].id || raw[i].name || raw[i];
-          if (id) models.push(id);
-        }
-      }
-      if (!models.length) { if(window.AppNav) AppNav.showToast('未找到模型'); return; }
-
+    if (!url || !key) { AppNav.showToast('请先填写地址和Key'); return; }
+    AppNav.showToast('获取模型中...');
+    fetch(url.replace(/\/+$/, '') + '/models', { headers: { 'Authorization': 'Bearer ' + key } })
+    .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+    .then(function(data) {
+      var raw = data.data || data; var models = [];
+      if (Array.isArray(raw)) { for (var i = 0; i < raw.length; i++) { var id = raw[i].id || raw[i].name || raw[i]; if (id) models.push(id); } }
+      if (!models.length) { AppNav.showToast('未找到模型'); return; }
       var list = body.querySelector('#apiModelList');
       if (!list) return;
-
       var currentModel = body.querySelector('#apiModel').value;
       list.innerHTML = '<input type="text" class="api-model-search" id="apiModelSearch" placeholder="搜索模型...">'
-        + '<div id="apiModelResults">' + models.map(function(m) {
-          return '<div class="api-model-item' + (m === currentModel ? ' selected' : '') + '">' + esc(m) + '</div>';
-        }).join('') + '</div>';
+        + '<div id="apiModelResults">' + models.map(function(m) { return '<div class="api-model-item' + (m === currentModel ? ' selected' : '') + '">' + esc(m) + '</div>'; }).join('') + '</div>';
       list.classList.add('show');
-
       var searchInput = list.querySelector('#apiModelSearch');
       var resultsBox = list.querySelector('#apiModelResults');
-
       function bindClicks() {
         resultsBox.querySelectorAll('.api-model-item').forEach(function(item) {
-          item.addEventListener('click', function() {
-            body.querySelector('#apiModel').value = item.textContent;
-            list.classList.remove('show');
-          });
+          item.addEventListener('click', function() { body.querySelector('#apiModel').value = item.textContent; list.classList.remove('show'); });
         });
       }
       bindClicks();
-
       searchInput.addEventListener('input', function() {
         var kw = this.value.trim().toLowerCase();
         var filtered = kw ? models.filter(function(m) { return m.toLowerCase().indexOf(kw) >= 0; }) : models;
-        resultsBox.innerHTML = filtered.map(function(m) {
-          return '<div class="api-model-item' + (m === currentModel ? ' selected' : '') + '">' + esc(m) + '</div>';
-        }).join('');
+        resultsBox.innerHTML = filtered.map(function(m) { return '<div class="api-model-item' + (m === currentModel ? ' selected' : '') + '">' + esc(m) + '</div>'; }).join('');
         bindClicks();
       });
-
-      if(window.AppNav) AppNav.showToast(models.length + ' 个模型');
-    }).catch(function(err) {
-      if(window.AppNav) AppNav.showToast('获取失败: ' + err.message);
-    });
+      AppNav.showToast(models.length + ' 个模型');
+    }).catch(function(err) { AppNav.showToast('获取失败: ' + err.message); });
   }
 
-  // ============ 数据子页 ============
-  function openDataPage() {
-    var page = createSubpage('数据');
-    var body = page.querySelector('.settings-subpage-body');
-
+  function renderDataBody() {
+    var body = document.getElementById('dataPageContent');
+    if(!body) return;
     body.innerHTML = '<div class="data-section">'
       + '<div class="data-item" id="dataExport"><div class="data-item-icon export"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="data-item-text"><div class="data-item-title">导出数据</div><div class="data-item-desc">将所有本地数据导出为JSON文件</div></div></div>'
       + '<div class="data-item" id="dataImport"><div class="data-item-icon import"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="data-item-text"><div class="data-item-title">导入数据</div><div class="data-item-desc">从JSON文件恢复数据</div></div></div>'
       + '<div class="data-item" id="dataClear"><div class="data-item-icon danger"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div><div class="data-item-text"><div class="data-item-title danger">清除所有数据</div><div class="data-item-desc">不可恢复，请谨慎操作</div></div></div>'
       + '</div>';
-
-    setTimeout(function() { page.classList.add('show'); }, 10);
 
     body.querySelector('#dataExport').addEventListener('click', exportAllData);
     body.querySelector('#dataImport').addEventListener('click', function() {
@@ -290,9 +203,7 @@
         var file = this.files[0];
         if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(e) {
-          try { importAllData(JSON.parse(e.target.result)); } catch(err) { if(window.AppNav) AppNav.showToast('文件格式错误'); }
-        };
+        reader.onload = function(e) { try { importAllData(JSON.parse(e.target.result)); } catch(err) { AppNav.showToast('文件格式错误'); } };
         reader.readAsText(file);
       });
       input.click();
@@ -300,11 +211,8 @@
     body.querySelector('#dataClear').addEventListener('click', function() {
       if (!confirm('确定要清除所有数据吗？此操作不可恢复！')) return;
       var request = indexedDB.deleteDatabase('AppDB');
-      request.onsuccess = function() {
-        if(window.AppNav) AppNav.showToast('已清除，即将刷新');
-        setTimeout(function() { location.reload(); }, 1000);
-      };
-      request.onerror = function() { if(window.AppNav) AppNav.showToast('清除失败'); };
+      request.onsuccess = function() { AppNav.showToast('已清除，即将刷新'); setTimeout(function() { location.reload(); }, 1000); };
+      request.onerror = function() { AppNav.showToast('清除失败'); };
     });
   }
 
@@ -322,7 +230,7 @@
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a'); a.href = url; a.download = 'app-data-' + new Date().toISOString().slice(0, 10) + '.json';
             a.click(); URL.revokeObjectURL(url);
-            if(window.AppNav) AppNav.showToast('导出成功');
+            AppNav.showToast('导出成功');
           }
         });
       }
@@ -336,60 +244,10 @@
       if(window.AppDB) {
         AppDB.save(key, data[key], function() {
           done++;
-          if (done === keys.length) {
-            if(window.AppNav) AppNav.showToast('导入成功，即将刷新');
-            setTimeout(function() { location.reload(); }, 1000);
-          }
+          if (done === keys.length) { AppNav.showToast('导入成功，即将刷新'); setTimeout(function() { location.reload(); }, 1000); }
         });
       }
     });
-  }
-
-  // ============ 通用工具（子级右滑返回框架） ============
-  function createSubpage(title) {
-    var existing = document.querySelector('.settings-subpage');
-    if (existing) existing.remove();
-
-    var page = document.createElement('div');
-    page.className = 'app-page settings-subpage';
-    page.innerHTML = '<div class="page-header-simple">'
-      + '<button class="icon-back-btn" type="button"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>'
-      + '</div>'
-      + '<div class="page-title">' + title + '</div>'
-      + '<div class="app-content settings-subpage-body"></div>';
-    document.body.appendChild(page);
-
-    function closePage() {
-      page.style.transform = 'translateX(100%)';
-      setTimeout(function() { page.remove(); }, 300);
-    }
-
-    page.querySelector('.icon-back-btn').addEventListener('click', closePage);
-
-    // 完美边缘手势返回
-    var startX = 0, currentX = 0, isDragging = false;
-    page.addEventListener('touchstart', function(e) {
-      if (e.touches[0].clientX > 40) return; // 必须从极左侧滑
-      isDragging = true;
-      startX = e.touches[0].clientX;
-      page.style.transition = 'none';
-    }, { passive: true });
-
-    page.addEventListener('touchmove', function(e) {
-      if (!isDragging) return;
-      currentX = e.touches[0].clientX - startX;
-      if (currentX > 0) page.style.transform = 'translateX(' + currentX + 'px)';
-    }, { passive: true });
-
-    page.addEventListener('touchend', function() {
-      if (!isDragging) return;
-      isDragging = false;
-      page.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-      if (currentX > window.innerWidth * 0.3) closePage();
-      else page.style.transform = 'translateX(0)';
-    });
-
-    return page;
   }
 
   function bindRange(container, inputId, valId) {
@@ -418,8 +276,7 @@
   function saveApiData() {
     if (!window.AppDB) return;
     AppDB.save('api_configs', apiConfigs);
-    if (activeApi) AppDB.save('active_api', activeApi);
-    else AppDB.delete('active_api');
+    if (activeApi) AppDB.save('active_api', activeApi); else AppDB.delete('active_api');
   }
 
   window.ApiConfig = { getActive: function() { return activeApi; }, getParams: getParams };
