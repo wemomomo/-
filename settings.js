@@ -6,11 +6,10 @@
 
   var apiConfigs = [];
   var activeApi = null;
-  var apiParams = null; // 在内存里缓存参数
+  var apiParams = null; 
   var currentTab = 'config';
   var editingIdx = -1;
 
-  // 网页准备好时，提前把所有配置加载到内存
   window.addEventListener('dbReady', function() {
     loadApiData();
     document.getElementById('settingApi').addEventListener('click', openApiPage);
@@ -19,14 +18,12 @@
 
   // ============ API 配置页 ============
   function openApiPage() {
-    // 确保数据已加载完毕再渲染
     loadApiData(function() {
       currentTab = 'config';
       editingIdx = -1;
-
       var page = createSubpage('API 配置');
       renderApiBody(page.querySelector('.settings-subpage-body'));
-      page.classList.add('show');
+      setTimeout(function() { page.classList.add('show'); }, 10);
     });
   }
 
@@ -83,7 +80,6 @@
   }
 
   function bindApiEvents(body) {
-    // Tab 切换
     body.querySelectorAll('.api-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
         currentTab = this.dataset.tab;
@@ -93,7 +89,6 @@
     });
 
     if (currentTab === 'config') {
-      // 显示/隐藏密钥
       var toggleBtn = body.querySelector('#apiToggleKey');
       if (toggleBtn) {
         toggleBtn.addEventListener('click', function() {
@@ -102,15 +97,11 @@
         });
       }
 
-      // 获取模型列表
       var fetchBtn = body.querySelector('#apiFetchModels');
       if (fetchBtn) {
-        fetchBtn.addEventListener('click', function() {
-          fetchModels(body);
-        });
+        fetchBtn.addEventListener('click', function() { fetchModels(body); });
       }
 
-      // 保存配置
       var saveBtn = body.querySelector('#apiSaveBtn');
       if (saveBtn) {
         saveBtn.addEventListener('click', function() {
@@ -119,18 +110,12 @@
           var key = (body.querySelector('#apiKey').value || '').trim();
           var model = (body.querySelector('#apiModel').value || '').trim();
 
-          if (!name || !url || !key || !model) {
-            AppNav.showToast('请填写所有字段');
-            return;
-          }
+          if (!name || !url || !key || !model) { AppNav.showToast('请填写所有字段'); return; }
 
           var config = { name: name, url: url, key: key, model: model };
-
           if (editingIdx >= 0) {
             apiConfigs[editingIdx] = config;
-            if (activeApi && activeApi.name === config.name) {
-              activeApi = config;
-            }
+            if (activeApi && activeApi.name === config.name) activeApi = config;
           } else {
             var existing = -1;
             for (var i = 0; i < apiConfigs.length; i++) {
@@ -139,7 +124,6 @@
             if (existing >= 0) apiConfigs[existing] = config;
             else apiConfigs.push(config);
           }
-
           if (!activeApi) activeApi = config;
           saveApiData();
           editingIdx = -1;
@@ -150,7 +134,6 @@
       }
 
     } else if (currentTab === 'params') {
-      // 滑块实时数值
       bindRange(body, 'apiTemp', 'apiTempVal');
       bindRange(body, 'apiFreq', 'apiFreqVal');
       bindRange(body, 'apiPres', 'apiPresVal');
@@ -163,25 +146,21 @@
             freqPenalty: parseFloat(body.querySelector('#apiFreq').value),
             presPenalty: parseFloat(body.querySelector('#apiPres').value)
           };
-          apiParams = params; // 同步更新内存
-          AppDB.save('api_params', params); // 保存进数据库
+          apiParams = params;
+          AppDB.save('api_params', params);
           AppNav.showToast('参数已保存');
         });
       }
 
     } else if (currentTab === 'saved') {
-      // 使用
       body.querySelectorAll('.api-saved-act.use').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          var idx = parseInt(this.dataset.idx);
-          activeApi = apiConfigs[idx];
+          activeApi = apiConfigs[parseInt(this.dataset.idx)];
           saveApiData();
           AppNav.showToast('已切换: ' + activeApi.name);
           renderApiBody(body);
         });
       });
-
-      // 编辑
       body.querySelectorAll('.api-saved-act.edit').forEach(function(btn) {
         btn.addEventListener('click', function() {
           editingIdx = parseInt(this.dataset.idx);
@@ -189,12 +168,9 @@
           renderApiBody(body);
         });
       });
-
-      // 删除
       body.querySelectorAll('.api-saved-act.delete').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          var idx = parseInt(this.dataset.idx);
-          var removed = apiConfigs.splice(idx, 1)[0];
+          var removed = apiConfigs.splice(parseInt(this.dataset.idx), 1)[0];
           if (activeApi && removed && activeApi.name === removed.name) {
             activeApi = apiConfigs.length ? apiConfigs[0] : null;
           }
@@ -278,36 +254,23 @@
       + '<div class="data-item" id="dataClear"><div class="data-item-icon danger"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div><div class="data-item-text"><div class="data-item-title danger">清除所有数据</div><div class="data-item-desc">不可恢复，请谨慎操作</div></div></div>'
       + '</div>';
 
-    page.classList.add('show');
+    setTimeout(function() { page.classList.add('show'); }, 10);
 
-    // 导出
-    body.querySelector('#dataExport').addEventListener('click', function() {
-      exportAllData();
-    });
-
-    // 导入
+    body.querySelector('#dataExport').addEventListener('click', exportAllData);
     body.querySelector('#dataImport').addEventListener('click', function() {
       var input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
+      input.type = 'file'; input.accept = '.json';
       input.addEventListener('change', function() {
         var file = this.files[0];
         if (!file) return;
         var reader = new FileReader();
         reader.onload = function(e) {
-          try {
-            var data = JSON.parse(e.target.result);
-            importAllData(data);
-          } catch(err) {
-            AppNav.showToast('文件格式错误');
-          }
+          try { importAllData(JSON.parse(e.target.result)); } catch(err) { AppNav.showToast('文件格式错误'); }
         };
         reader.readAsText(file);
       });
       input.click();
     });
-
-    // 清除
     body.querySelector('#dataClear').addEventListener('click', function() {
       if (!confirm('确定要清除所有数据吗？此操作不可恢复！')) return;
       clearAllData();
@@ -318,7 +281,6 @@
     var allKeys = ['card_state', 'card_bg', 'card_avatar', 'message_avatar', 'message_preview', 'tabbar_state', 'drag_order', 'api_configs', 'active_api', 'api_params'];
     var result = {};
     var done = 0;
-
     allKeys.forEach(function(key) {
       AppDB.get(key, function(val) {
         if (val !== null && val !== undefined) result[key] = val;
@@ -326,11 +288,8 @@
         if (done === allKeys.length) {
           var blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
           var url = URL.createObjectURL(blob);
-          var a = document.createElement('a');
-          a.href = url;
-          a.download = 'app-data-' + new Date().toISOString().slice(0, 10) + '.json';
-          a.click();
-          URL.revokeObjectURL(url);
+          var a = document.createElement('a'); a.href = url; a.download = 'app-data-' + new Date().toISOString().slice(0, 10) + '.json';
+          a.click(); URL.revokeObjectURL(url);
           AppNav.showToast('导出成功');
         }
       });
@@ -357,12 +316,10 @@
       AppNav.showToast('已清除，即将刷新');
       setTimeout(function() { location.reload(); }, 1000);
     };
-    request.onerror = function() {
-      AppNav.showToast('清除失败');
-    };
+    request.onerror = function() { AppNav.showToast('清除失败'); };
   }
 
-  // ============ 通用工具 ============
+  // ============ 通用工具（含滑动返回逻辑） ============
   function createSubpage(title) {
     var existing = document.querySelector('.settings-subpage');
     if (existing) existing.remove();
@@ -370,15 +327,41 @@
     var page = document.createElement('div');
     page.className = 'settings-subpage';
     page.innerHTML = '<div class="settings-subpage-header">'
-      + '<button class="settings-back-btn" type="button"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>'
+      + '<button class="settings-back-btn" type="button"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span>返回</span></button>'
       + '<div class="settings-subpage-title">' + title + '</div>'
       + '</div>'
       + '<div class="settings-subpage-body"></div>';
     document.body.appendChild(page);
 
-    page.querySelector('.settings-back-btn').addEventListener('click', function() {
-      page.classList.remove('show');
-      setTimeout(function() { page.remove(); }, 250);
+    function closePage() {
+      page.style.transform = 'translateX(100%)';
+      setTimeout(function() { page.remove(); }, 300);
+    }
+
+    page.querySelector('.settings-back-btn').addEventListener('click', closePage);
+
+    // 右滑退出逻辑
+    var startX = 0, currentX = 0, isDragging = false;
+    page.addEventListener('touchstart', function(e) {
+      // 只有在屏幕最左边（小于40px）滑动才会触发返回，防误触
+      if (e.touches[0].clientX > 40) return;
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      page.style.transition = 'none'; // 拖拽时取消动画
+    }, { passive: true });
+
+    page.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      currentX = e.touches[0].clientX - startX;
+      if (currentX > 0) page.style.transform = 'translateX(' + currentX + 'px)';
+    }, { passive: true });
+
+    page.addEventListener('touchend', function() {
+      if (!isDragging) return;
+      isDragging = false;
+      page.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      if (currentX > window.innerWidth * 0.3) closePage();
+      else page.style.transform = 'translateX(0)'; // 滑得太短，弹回去
     });
 
     return page;
@@ -387,11 +370,7 @@
   function bindRange(container, inputId, valId) {
     var input = container.querySelector('#' + inputId);
     var val = container.querySelector('#' + valId);
-    if (input && val) {
-      input.addEventListener('input', function() {
-        val.textContent = this.value;
-      });
-    }
+    if (input && val) input.addEventListener('input', function() { val.textContent = this.value; });
   }
 
   function esc(str) {
@@ -399,24 +378,12 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // 直接从内存拿参数，纯同步极速
-  function getParams() {
-    return apiParams || JSON.parse(JSON.stringify(PARAM_DEFAULTS));
-  }
+  function getParams() { return apiParams || JSON.parse(JSON.stringify(PARAM_DEFAULTS)); }
 
-  // ============ 数据存取 ============
-  // 把数据从数据库搬到内存，加入回调机制
   function loadApiData(callback) {
     var totalLoads = 3;
     var currentLoads = 0;
-
-    function checkDone() {
-      currentLoads++;
-      if (currentLoads === totalLoads && callback) {
-        callback();
-      }
-    }
-
+    function checkDone() { currentLoads++; if (currentLoads === totalLoads && callback) callback(); }
     AppDB.get('api_configs', function(val) { if (val) apiConfigs = val; checkDone(); });
     AppDB.get('active_api', function(val) { if (val) activeApi = val; checkDone(); });
     AppDB.get('api_params', function(val) { if (val) apiParams = val; checkDone(); });
@@ -428,12 +395,6 @@
     else AppDB.delete('active_api');
   }
 
-  // 暴露给全局，方便以后直接取配置聊天
-  window.ApiConfig = {
-    getActive: function() {
-      return activeApi;
-    },
-    getParams: getParams
-  };
+  window.ApiConfig = { getActive: function() { return activeApi; }, getParams: getParams };
 
 })();
