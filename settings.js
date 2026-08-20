@@ -10,20 +10,31 @@
   var currentTab = 'config';
   var editingIdx = -1;
 
-  window.addEventListener('dbReady', function() {
-    loadApiData();
-    document.getElementById('settingApi').addEventListener('click', openApiPage);
-    document.getElementById('settingData').addEventListener('click', openDataPage);
-  });
+  // 暴力绑定：不等待任何条件，只要找到按钮立刻绑上！
+  function forceBindClicks() {
+    var btnApi = document.getElementById('settingApi');
+    var btnData = document.getElementById('settingData');
+    if (btnApi && btnData) {
+      btnApi.addEventListener('click', openApiPage);
+      btnData.addEventListener('click', openDataPage);
+      loadApiData(); // 顺便后台加载数据
+    } else {
+      setTimeout(forceBindClicks, 200); // 找不到就0.2秒后重新找
+    }
+  }
+  forceBindClicks();
 
   // ============ API 配置页 ============
   function openApiPage() {
+    currentTab = 'config';
+    editingIdx = -1;
+    var page = createSubpage('API 配置');
+    
+    // 强制先渲染，不管数据库卡不卡
     loadApiData(function() {
-      currentTab = 'config';
-      editingIdx = -1;
-      var page = createSubpage('API 配置');
       renderApiBody(page.querySelector('.settings-subpage-body'));
-      setTimeout(function() { page.classList.add('show'); }, 10);
+      void page.offsetWidth; // 触发浏览器重绘（非常重要，不加滑不出来）
+      page.classList.add('show');
     });
   }
 
@@ -254,7 +265,8 @@
       + '<div class="data-item" id="dataClear"><div class="data-item-icon danger"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div><div class="data-item-text"><div class="data-item-title danger">清除所有数据</div><div class="data-item-desc">不可恢复，请谨慎操作</div></div></div>'
       + '</div>';
 
-    setTimeout(function() { page.classList.add('show'); }, 10);
+    void page.offsetWidth; // 触发浏览器重绘
+    page.classList.add('show');
 
     body.querySelector('#dataExport').addEventListener('click', exportAllData);
     body.querySelector('#dataImport').addEventListener('click', function() {
@@ -282,17 +294,19 @@
     var result = {};
     var done = 0;
     allKeys.forEach(function(key) {
-      AppDB.get(key, function(val) {
-        if (val !== null && val !== undefined) result[key] = val;
-        done++;
-        if (done === allKeys.length) {
-          var blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
-          var url = URL.createObjectURL(blob);
-          var a = document.createElement('a'); a.href = url; a.download = 'app-data-' + new Date().toISOString().slice(0, 10) + '.json';
-          a.click(); URL.revokeObjectURL(url);
-          AppNav.showToast('导出成功');
-        }
-      });
+      if(window.AppDB) {
+        AppDB.get(key, function(val) {
+          if (val !== null && val !== undefined) result[key] = val;
+          done++;
+          if (done === allKeys.length) {
+            var blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a'); a.href = url; a.download = 'app-data-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click(); URL.revokeObjectURL(url);
+            AppNav.showToast('导出成功');
+          }
+        });
+      }
     });
   }
 
@@ -300,13 +314,15 @@
     var keys = Object.keys(data);
     var done = 0;
     keys.forEach(function(key) {
-      AppDB.save(key, data[key], function() {
-        done++;
-        if (done === keys.length) {
-          AppNav.showToast('导入成功，即将刷新');
-          setTimeout(function() { location.reload(); }, 1000);
-        }
-      });
+      if(window.AppDB) {
+        AppDB.save(key, data[key], function() {
+          done++;
+          if (done === keys.length) {
+            AppNav.showToast('导入成功，即将刷新');
+            setTimeout(function() { location.reload(); }, 1000);
+          }
+        });
+      }
     });
   }
 
@@ -319,7 +335,7 @@
     request.onerror = function() { AppNav.showToast('清除失败'); };
   }
 
-  // ============ 通用工具（含滑动返回逻辑） ============
+  // ============ 通用工具（带丝滑拖拽返回） ============
   function createSubpage(title) {
     var existing = document.querySelector('.settings-subpage');
     if (existing) existing.remove();
@@ -340,14 +356,14 @@
 
     page.querySelector('.settings-back-btn').addEventListener('click', closePage);
 
-    // 右滑退出逻辑
+    // 完美手势返回
     var startX = 0, currentX = 0, isDragging = false;
     page.addEventListener('touchstart', function(e) {
-      // 只有在屏幕最左边（小于40px）滑动才会触发返回，防误触
+      // 必须从屏幕边缘（小于40px）滑动才能触发，防误触
       if (e.touches[0].clientX > 40) return;
       isDragging = true;
       startX = e.touches[0].clientX;
-      page.style.transition = 'none'; // 拖拽时取消动画
+      page.style.transition = 'none'; // 滑动时去掉动画
     }, { passive: true });
 
     page.addEventListener('touchmove', function(e) {
@@ -360,8 +376,12 @@
       if (!isDragging) return;
       isDragging = false;
       page.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-      if (currentX > window.innerWidth * 0.3) closePage();
-      else page.style.transform = 'translateX(0)'; // 滑得太短，弹回去
+      // 滑动超过30%屏幕宽度就关掉，否则弹回去
+      if (currentX > window.innerWidth * 0.3) {
+        closePage();
+      } else {
+        page.style.transform = 'translateX(0)';
+      }
     });
 
     return page;
@@ -380,16 +400,36 @@
 
   function getParams() { return apiParams || JSON.parse(JSON.stringify(PARAM_DEFAULTS)); }
 
+  // 极速静默读取数据库，500ms超时保护防卡死
   function loadApiData(callback) {
-    var totalLoads = 3;
-    var currentLoads = 0;
-    function checkDone() { currentLoads++; if (currentLoads === totalLoads && callback) callback(); }
-    AppDB.get('api_configs', function(val) { if (val) apiConfigs = val; checkDone(); });
-    AppDB.get('active_api', function(val) { if (val) activeApi = val; checkDone(); });
-    AppDB.get('api_params', function(val) { if (val) apiParams = val; checkDone(); });
+    if (!window.AppDB) { 
+      if(callback) callback(); 
+      return; 
+    }
+    var total = 3;
+    var done = 0;
+    var fired = false;
+    function check() {
+      done++;
+      if (done >= total && !fired) {
+        fired = true;
+        if (callback) callback();
+      }
+    }
+    setTimeout(function() {
+      if (!fired) {
+        fired = true;
+        if (callback) callback();
+      }
+    }, 500);
+    
+    AppDB.get('api_configs', function(val) { if(val) apiConfigs = val; check(); });
+    AppDB.get('active_api', function(val) { if(val) activeApi = val; check(); });
+    AppDB.get('api_params', function(val) { if(val) apiParams = val; check(); });
   }
 
   function saveApiData() {
+    if (!window.AppDB) return;
     AppDB.save('api_configs', apiConfigs);
     if (activeApi) AppDB.save('active_api', activeApi);
     else AppDB.delete('active_api');
