@@ -329,13 +329,76 @@
   var pages = document.querySelectorAll('.page');
   var dock = document.querySelector('.tab-bar');
   var dockEditBtn = document.querySelector('.tabbar-edit-btn');
-  var appShell = document.querySelector('.app-shell');
+
+  // 初始化 App 空壳：注入标题栏和内容区
+  function initAppShells() {
+    var appPages = ['wechat', 'offline', 'settings', 'check'];
+    appPages.forEach(function(name) {
+      var page = document.querySelector('[data-page="' + name + '"]');
+      if (!page || page.querySelector('.page-header-simple')) return; // 已初始化就跳过
+
+      var titleText = { wechat: '微信', offline: '线下', settings: '设置', check: '查岗' }[name];
+      
+      page.innerHTML = 
+        '<div class="page-header-simple">' +
+          '<button class="icon-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '</div>' +
+        '<div class="page-title">' + titleText + '</div>' +
+        '<div class="app-content" id="' + name + 'Content"></div>';
+    });
+
+    // 给设置页特殊处理：注入二级入口列表
+    var settingsContent = document.getElementById('settingsContent');
+    if (settingsContent && !settingsContent.querySelector('.settings-list')) {
+      settingsContent.innerHTML = 
+        '<div class="settings-list">' +
+          '<div class="settings-item" data-goto="api">' +
+            '<div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>' +
+            '<div class="settings-item-text">' +
+              '<div class="settings-item-title">API 配置</div>' +
+              '<div class="settings-item-desc">管理接口密钥与模型设置</div>' +
+            '</div>' +
+            '<svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>' +
+          '</div>' +
+          '<div class="settings-item" data-goto="data">' +
+            '<div class="settings-item-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>' +
+            '<div class="settings-item-text">' +
+              '<div class="settings-item-title">数据</div>' +
+              '<div class="settings-item-desc">导入导出与清除本地数据</div>' +
+            '</div>' +
+            '<svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>' +
+          '</div>' +
+        '</div>';
+    }
+
+    // 创建 API 和 Data 的二级页面（如果不存在）
+    var subPages = [
+      { name: 'api', title: 'API 配置', back: 'settings' },
+      { name: 'data', title: '数据', back: 'settings' }
+    ];
+    subPages.forEach(function(sub) {
+      var existing = document.querySelector('[data-page="' + sub.name + '"]');
+      if (existing) return;
+      
+      var subPage = document.createElement('div');
+      subPage.className = 'page app-page';
+      subPage.dataset.page = sub.name;
+      subPage.innerHTML = 
+        '<div class="page-header-simple">' +
+          '<button class="icon-back-btn" data-back="' + sub.back + '"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '</div>' +
+        '<div class="page-title">' + sub.title + '</div>' +
+        '<div class="app-content" id="' + sub.name + 'PageContent"></div>';
+      document.getElementById('pageContainer').appendChild(subPage);
+    });
+  }
 
   function showPage(name) {
-    pages.forEach(function(p) {
+    var allPages = document.querySelectorAll('.page');
+    allPages.forEach(function(p) {
       if (p.dataset.page === name) {
         p.classList.add('active');
-        p.style.transform = ''; // 重置滑动状态
+        p.style.transform = '';
       } else {
         p.classList.remove('active');
       }
@@ -344,9 +407,7 @@
     // 如果回到桌面(home)，显示 Dock 栏
     if (name === 'home') {
       if (dock) dock.style.display = 'flex';
-      if (dockEditBtn && appShell.classList.contains('edit-mode')) {
-        dockEditBtn.style.display = 'block';
-      }
+      if (dockEditBtn) dockEditBtn.style.display = 'block';
     } else {
       // 进入任何 App，隐藏 Dock 栏
       if (dock) dock.style.display = 'none';
@@ -354,60 +415,67 @@
     }
   }
 
-  // 点击 Dock 栏 -> 打开 App
-  document.querySelectorAll('.tab-item').forEach(function(tab) {
-    tab.addEventListener('click', function() { showPage(this.dataset.tab); });
-  });
-
-  // App 内部跳转 (例如: 设置 -> API)
-  document.querySelectorAll('[data-goto]').forEach(function(btn) {
-    btn.addEventListener('click', function() { showPage(this.dataset.goto); });
-  });
-
-  // App 返回按钮 (例如: API -> 设置, 设置 -> 桌面)
-  document.querySelectorAll('[data-back]').forEach(function(btn) {
-    btn.addEventListener('click', function() { showPage(this.dataset.back); });
-  });
-
-  // 原生级：边缘右滑返回逻辑
-  document.querySelectorAll('.app-page').forEach(function(page) {
-    var startX = 0, currentX = 0, isDragging = false;
-    var backBtn = page.querySelector('[data-back]');
-    if (!backBtn) return;
-
-    page.addEventListener('touchstart', function(e) {
-      if (e.touches[0].clientX > 40) return; // 必须从屏幕极左边缘滑才有效防误触
-      isDragging = true;
-      startX = e.touches[0].clientX;
-      page.style.transition = 'none';
-    }, { passive: true });
-
-    page.addEventListener('touchmove', function(e) {
-      if (!isDragging) return;
-      currentX = e.touches[0].clientX - startX;
-      if (currentX > 0) page.style.transform = 'translateX(' + currentX + 'px)';
-    }, { passive: true });
-
-    page.addEventListener('touchend', function() {
-      if (!isDragging) return;
-      isDragging = false;
-      page.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-      // 划过 30% 屏幕宽度就执行返回，否则弹回
-      if (currentX > window.innerWidth * 0.3) {
-        showPage(backBtn.dataset.back);
-        setTimeout(function() { page.style.transform = ''; }, 300); // 隐藏后复位
-      } else {
-        page.style.transform = 'translateX(0)';
-      }
+  // 绑定所有返回按钮和跳转按钮
+  function bindNavigation() {
+    // Dock 栏点击
+    document.querySelectorAll('.tab-item').forEach(function(tab) {
+      tab.addEventListener('click', function() { showPage(this.dataset.tab); });
     });
-  });
+
+    // data-back 返回按钮
+    document.addEventListener('click', function(e) {
+      var backBtn = e.target.closest('[data-back]');
+      if (backBtn) showPage(backBtn.dataset.back);
+    });
+
+    // data-goto 跳转按钮
+    document.addEventListener('click', function(e) {
+      var gotoBtn = e.target.closest('[data-goto]');
+      if (gotoBtn) showPage(gotoBtn.dataset.goto);
+    });
+
+    // 右滑返回
+    document.querySelectorAll('.app-page').forEach(function(page) {
+      var startX = 0, currentX = 0, isDragging = false;
+
+      page.addEventListener('touchstart', function(e) {
+        if (e.touches[0].clientX > 40) return;
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        page.style.transition = 'none';
+      }, { passive: true });
+
+      page.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX - startX;
+        if (currentX > 0) page.style.transform = 'translateX(' + currentX + 'px)';
+      }, { passive: true });
+
+      page.addEventListener('touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+        page.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        
+        var backBtn = page.querySelector('[data-back]');
+        if (currentX > window.innerWidth * 0.3 && backBtn) {
+          showPage(backBtn.dataset.back);
+          setTimeout(function() { page.style.transform = ''; }, 300);
+        } else {
+          page.style.transform = 'translateX(0)';
+        }
+      });
+    });
+  }
 
   window.AppNav = { showPage: showPage, showToast: showToast };
 
   // ============ 初始化 ============
   openDB(function() {
     setupPhotoAction();
+    initAppShells(); // 先搭建App骨架
+    bindNavigation(); // 再绑定导航
     window.dispatchEvent(new CustomEvent('dbReady'));
   });
 
 })();
+
