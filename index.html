@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -11,15 +12,28 @@
 <link rel="stylesheet" href="apps.css">
 <link rel="stylesheet" href="tabbar.css">
 <link rel="stylesheet" href="edit-drag.css">
-  <link rel="stylesheet" href="settings.css">
+<link rel="stylesheet" href="settings.css">
 </head>
 <body>
 
 <div class="app-shell">
   <div class="page-container" id="pageContainer">
-    
+
+    <button class="reset-layout-btn" id="resetLayoutBtn">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+        <path d="M21 3v5h-5"/>
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+        <path d="M3 21v-5h5"/>
+      </svg>
+      <span>恢复初始</span>
+    </button>
+
+    <!-- ========================================== -->
     <!-- 桌面 (Home) -->
+    <!-- ========================================== -->
     <div class="page active" data-page="home">
+
       <div class="profile-card draggable" id="profileCard" data-component="card">
         <div class="card-bg" id="cardBg"></div>
         <div class="card-upper" id="cardUpper"></div>
@@ -94,78 +108,23 @@
       </div>
     </div>
 
-    <!-- 微信 App -->
-    <div class="page app-page" data-page="wechat">
-      <div class="app-header"><button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button><div class="app-title">微信</div></div>
-      <div class="app-content"></div>
-    </div>
-
-    <!-- 线下 App -->
-    <div class="page app-page" data-page="offline">
-      <div class="app-header"><button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button><div class="app-title">线下</div></div>
-      <div class="app-content"></div>
-    </div>
-
-    <!-- 设置 App -->
-    <div class="page app-page" data-page="settings">
-      <div class="app-header">
-        <button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button>
-        <div class="app-title">设置</div>
-      </div>
-      <div class="app-content">
-        <div class="settings-list">
-          <div class="settings-item" data-goto="api">
-            <div class="settings-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">API 配置</div>
-              <div class="settings-item-desc">管理接口密钥与模型设置</div>
-            </div>
-            <svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-          <div class="settings-item" data-goto="data">
-            <div class="settings-item-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">数据</div>
-              <div class="settings-item-desc">导入导出与清除本地数据</div>
-            </div>
-            <svg class="settings-arrow" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- API App (设置的子级) -->
-    <div class="page app-page" data-page="api">
-      <div class="app-header">
-        <button class="app-back-btn" data-back="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 设置</button>
-        <div class="app-title">API 配置</div>
-      </div>
-      <div class="app-content" id="apiPageContent"></div>
-    </div>
-
-    <!-- Data App (设置的子级) -->
-    <div class="page app-page" data-page="data">
-      <div class="app-header">
-        <button class="app-back-btn" data-back="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 设置</button>
-        <div class="app-title">数据</div>
-      </div>
-      <div class="app-content" id="dataPageContent"></div>
-    </div>
-
-    <!-- 查岗 App -->
-    <div class="page app-page" data-page="check">
-      <div class="app-header"><button class="app-back-btn" data-back="home"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> 返回</button><div class="app-title">查岗</div></div>
-      <div class="app-content"></div>
-    </div>
+    <!-- ========================================== -->
+    <!-- App 空壳页面 (内部全部由 JS 自动渲染填入) -->
+    <!-- ========================================== -->
+    <div class="page app-page" data-page="wechat"></div>
+    <div class="page app-page" data-page="offline"></div>
+    <div class="page app-page" data-page="settings"></div>
+    <div class="page app-page" data-page="check"></div>
 
   </div>
 
+  <!-- 底部栏编辑按钮 -->
   <button class="edit-btn tabbar-edit-btn" data-edit-target="tabbar">编辑</button>
 
   <!-- 桌面 Dock 栏 -->
   <div class="tab-bar">
     <div class="tab-bar-capsule">
-            <div class="tab-item" data-tab="wechat">
+      <div class="tab-item" data-tab="wechat">
         <div class="tab-icon">
           <svg viewBox="0 0 24 24" fill="none">
             <defs>
@@ -174,12 +133,9 @@
                 <path d="M16,10 c3.6,0 6.5,2.2 6.5,5 c0,1.5 -0.9,2.8 -2.2,3.8 l1.2,3 l-3.2,-1.6 c-0.7,.2 -1.5,.3 -2.3,.3 c-3.6,0 -6.5,-2.2 -6.5,-5 c0,-2.8 2.9,-5 6.5,-5 z" fill="black" stroke="black" stroke-width="2.5" stroke-linejoin="round" />
               </mask>
             </defs>
-            <!-- 背后的大气泡 (左侧，带蒙版挖空) -->
-            <path d="M9,3 c4.2,0 7.5,2.7 7.5,6 c0,3.3 -3.3,6 -7.5,6 c-0.9,0 -1.7,-0.1 -2.5,-0.3 l-3.5,1.8 l0.5,-3.5 C2,11.9 1.5,10.5 1.5,9 c0,-3.3 3.4,-6 7.5,-6 z" stroke-linejoin="round" mask="url(#wx-mask)"/>
-            <!-- 前面的小气泡 (右侧) -->
-            <path d="M16,10 c3.6,0 6.5,2.2 6.5,5 c0,1.5 -0.9,2.8 -2.2,3.8 l1.2,3 l-3.2,-1.6 c-0.7,.2 -1.5,.3 -2.3,.3 c-3.6,0 -6.5,-2.2 -6.5,-5 c0,-2.8 2.9,-5 6.5,-5 z" stroke-linejoin="round" />
-            <!-- 眼睛（画成圆点极短线） -->
-            <path d="M6 8.5h.01 M12 8.5h.01 M14 14h.01 M18 14h.01" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M9,3 c4.2,0 7.5,2.7 7.5,6 c0,3.3 -3.3,6 -7.5,6 c-0.9,0 -1.7,-0.1 -2.5,-0.3 l-3.5,1.8 l0.5,-3.5 C2,11.9 1.5,10.5 1.5,9 c0,-3.3 3.4,-6 7.5,-6 z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" mask="url(#wx-mask)"/>
+            <path d="M16,10 c3.6,0 6.5,2.2 6.5,5 c0,1.5 -0.9,2.8 -2.2,3.8 l1.2,3 l-3.2,-1.6 c-0.7,.2 -1.5,.3 -2.3,.3 c-3.6,0 -6.5,-2.2 -6.5,-5 c0,-2.8 2.9,-5 6.5,-5 z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M6 8.5h.01 M12 8.5h.01 M14 14h.01 M18 14h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
         </div>
         <div class="tab-label">微信</div>
