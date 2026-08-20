@@ -184,4 +184,17 @@
     });
   }
 
+// 根据是否 PWA 模式调整底部栏高度
+(function() {
+  var tabBar = document.querySelector('.tab-bar');
+  if (!tabBar) return;
+  
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    // PWA 模式：离底部远一点
+    tabBar.style.bottom = '15px';
+  } else {
+    // 手机浏览器网页版：贴底
+    tabBar.style.bottom = '8px';
+  }
+  
 })();
