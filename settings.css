@@ -3,7 +3,7 @@
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   height: 100vh;
-  background: #ffffff; /* 恢复纯白背景 */
+  background: #ffffff;
   z-index: 500;
   display: none;
   flex-direction: column;
@@ -17,11 +17,12 @@
   to { transform: translateX(0); }
 }
 
-/* 顶部简单的返回行 */
-/* 顶部简单的返回行（修复刘海屏问题） */
-.page-header-simple {
-  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 0; /* 刘海屏自动加间距 */
+/* 顶部容器：返回按钮和标题在同一行 */
+.app-header {
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 16px;
   display: flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -35,6 +36,7 @@
   align-items: center;
   padding: 4px;
   margin-left: -4px;
+  flex-shrink: 0;
 }
 .icon-back-btn:active {
   opacity: 0.5;
@@ -49,9 +51,12 @@
   stroke-linejoin: round;
 }
 
-/* 大标题专用边距（不再额外往下跑了） */
-.app-page .page-title {
-  padding: 8px 16px 16px;
+/* 大标题（现在和按钮在同一行，自动左对齐） */
+.app-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1c1c1e;
+  line-height: 1;
 }
 
 .app-content { 
