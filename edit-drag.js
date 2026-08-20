@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -23,7 +24,14 @@
 
   // ============ 长按空白处进入/退出编辑模式 ============
   pageContainer.addEventListener('touchstart', function(e) {
+    // 【核心修复】：获取首页元素，只有在首页显示的时候，才允许触发长按！
+    var homePage = document.querySelector('.page[data-page="home"]');
+    if (!homePage || !homePage.classList.contains('active')) {
+      return; // 如果不在首页，直接中断，绝对不触发编辑！
+    }
+
     var target = e.target;
+    // 只有点在空白背景上才触发
     if (target === pageContainer || target.classList.contains('page')) {
       e.preventDefault();
       touchStartX = e.touches[0].clientX;
@@ -34,7 +42,7 @@
         } else {
           exitEditMode();
         }
-      }, 100);
+      }, 700);
     }
   }, {passive: false});
 
@@ -83,7 +91,7 @@
       
       if (window.AppDB) {
         AppDB.delete('drag_order', function() {
-          AppNav.showToast('已恢复初始排布');
+          if (window.AppNav) AppNav.showToast('已恢复初始排布');
         });
       }
     });
