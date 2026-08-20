@@ -1,3 +1,4 @@
+
 (function(){
   'use strict';
 
@@ -5,23 +6,28 @@
 
   var apiConfigs = [];
   var activeApi = null;
+  var apiParams = null; // 在内存里缓存参数
   var currentTab = 'config';
   var editingIdx = -1;
 
+  // 网页准备好时，提前把所有配置加载到内存
   window.addEventListener('dbReady', function() {
+    loadApiData();
     document.getElementById('settingApi').addEventListener('click', openApiPage);
     document.getElementById('settingData').addEventListener('click', openDataPage);
   });
 
   // ============ API 配置页 ============
   function openApiPage() {
-    loadApiData();
-    currentTab = 'config';
-    editingIdx = -1;
+    // 确保数据已加载完毕再渲染
+    loadApiData(function() {
+      currentTab = 'config';
+      editingIdx = -1;
 
-    var page = createSubpage('API 配置');
-    renderApiBody(page.querySelector('.settings-subpage-body'));
-    page.classList.add('show');
+      var page = createSubpage('API 配置');
+      renderApiBody(page.querySelector('.settings-subpage-body'));
+      page.classList.add('show');
+    });
   }
 
   function renderApiBody(body) {
@@ -104,7 +110,7 @@
         });
       }
 
-      // 保存
+      // 保存配置
       var saveBtn = body.querySelector('#apiSaveBtn');
       if (saveBtn) {
         saveBtn.addEventListener('click', function() {
@@ -157,7 +163,8 @@
             freqPenalty: parseFloat(body.querySelector('#apiFreq').value),
             presPenalty: parseFloat(body.querySelector('#apiPres').value)
           };
-          AppDB.save('api_params', params);
+          apiParams = params; // 同步更新内存
+          AppDB.save('api_params', params); // 保存进数据库
           AppNav.showToast('参数已保存');
         });
       }
@@ -337,7 +344,7 @@
       AppDB.save(key, data[key], function() {
         done++;
         if (done === keys.length) {
-          AppNav.showToast('导入成功，刷新生效');
+          AppNav.showToast('导入成功，即将刷新');
           setTimeout(function() { location.reload(); }, 1000);
         }
       });
@@ -392,16 +399,27 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // 直接从内存拿参数，纯同步极速
   function getParams() {
-    var params = null;
-    AppDB.get('api_params', function(val) { params = val; });
-    return params || JSON.parse(JSON.stringify(PARAM_DEFAULTS));
+    return apiParams || JSON.parse(JSON.stringify(PARAM_DEFAULTS));
   }
 
   // ============ 数据存取 ============
-  function loadApiData() {
-    AppDB.get('api_configs', function(val) { if (val) apiConfigs = val; });
-    AppDB.get('active_api', function(val) { if (val) activeApi = val; });
+  // 把数据从数据库搬到内存，加入回调机制
+  function loadApiData(callback) {
+    var totalLoads = 3;
+    var currentLoads = 0;
+
+    function checkDone() {
+      currentLoads++;
+      if (currentLoads === totalLoads && callback) {
+        callback();
+      }
+    }
+
+    AppDB.get('api_configs', function(val) { if (val) apiConfigs = val; checkDone(); });
+    AppDB.get('active_api', function(val) { if (val) activeApi = val; checkDone(); });
+    AppDB.get('api_params', function(val) { if (val) apiParams = val; checkDone(); });
   }
 
   function saveApiData() {
@@ -410,10 +428,9 @@
     else AppDB.delete('active_api');
   }
 
-  // 暴露给全局
+  // 暴露给全局，方便以后直接取配置聊天
   window.ApiConfig = {
     getActive: function() {
-      if (!activeApi) loadApiData();
       return activeApi;
     },
     getParams: getParams
