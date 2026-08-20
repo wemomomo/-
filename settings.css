@@ -1,3 +1,4 @@
+
 /* ========== 独立 App 页面通用样式 (极简大字版) ========== */
 .app-page {
   position: absolute;
@@ -19,7 +20,7 @@
 
 /* 顶部容器：返回按钮和标题在同一行 */
 .app-header {
-  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 16px;
+  padding: var(--app-header-top) 16px 16px;
   display: flex;
   align-items: center;
   gap: 8px;
